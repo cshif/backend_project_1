@@ -1,0 +1,13 @@
+{
+  "name": "project_1",
+  "type": "module",
+  "packageManager": "yarn@4.3.0",
+  "dependencies": {
+    "express": "^4.19.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "oxlint": "^0.4.4",
+    "prettier": "3.3.2"
+  }
+}
