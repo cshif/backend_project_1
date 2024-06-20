@@ -113,8 +113,11 @@ const deleteUser = async (req, res) => {
   }
 };
 
-app.route('/users').post(createUser).get(getUsers);
-app.route('/users/:id').get(getUser).put(updateUser).delete(deleteUser);
+const userRouter = express.Router();
+app.use('/users', userRouter);
+
+userRouter.route('/').post(createUser).get(getUsers);
+userRouter.route('/:id').get(getUser).put(updateUser).delete(deleteUser);
 
 const createProduct = async (req, res) => {
   try {
@@ -214,9 +217,12 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-app.route('/products').post(createProduct).get(getProducts);
-app
-  .route('/products/:id')
+const productRouter = express.Router();
+app.use('/products', productRouter);
+
+productRouter.route('/').post(createProduct).get(getProducts);
+productRouter
+  .route('/:id')
   .get(getProduct)
   .put(updateProduct)
   .delete(deleteProduct);
