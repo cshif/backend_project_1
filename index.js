@@ -35,7 +35,7 @@ const createUser = async (req, res) => {
       res.status(404).send('Invalid data.');
     }
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -46,7 +46,7 @@ const getUsers = async (req, res) => {
     });
     res.json(JSON.parse(users));
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -58,7 +58,7 @@ const getUser = async (req, res) => {
     const user = JSON.parse(users).find((user) => user.id === req.params.id);
     res.json(user);
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -85,7 +85,7 @@ const updateUser = async (req, res) => {
       res.status(404).send("Can't find user");
     }
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -109,7 +109,7 @@ const deleteUser = async (req, res) => {
       res.status(404).send("Can't find user");
     }
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -132,7 +132,7 @@ const createProduct = async (req, res) => {
     );
     res.json(newProduct);
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -143,7 +143,7 @@ const getProducts = async (req, res) => {
     });
     res.json(JSON.parse(products));
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -157,7 +157,7 @@ const getProduct = async (req, res) => {
     );
     res.json(product);
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -186,7 +186,7 @@ const updateProduct = async (req, res) => {
       res.status(404).send("Can't find product");
     }
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
@@ -210,7 +210,7 @@ const deleteProduct = async (req, res) => {
       res.status(404).send("Can't find product");
     }
   } catch (e) {
-    console.error(e);
+    res.status(500).send(new Error(e.message));
   }
 };
 
