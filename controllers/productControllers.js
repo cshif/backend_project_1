@@ -1,18 +1,21 @@
-import fs from 'node:fs/promises';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const products = JSON.parse(fs.readFileSync(`${__dirname}/../products.json`));
 
 export const createProduct = async (req, res) => {
   try {
-    const products = await fs.readFile('./products.json', {
-      encoding: 'utf8',
-    });
     const newProduct = {
       id: crypto.randomUUID(),
       name: req.body.name,
       price: req.body.price,
     };
-    await fs.writeFile(
+    await fs.writeFileSync(
       './products.json',
-      JSON.stringify([...JSON.parse(products), newProduct])
+      JSON.stringify([...products, newProduct])
     );
     res.json(newProduct);
   } catch (e) {
@@ -22,10 +25,7 @@ export const createProduct = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await fs.readFile('./products.json', {
-      encoding: 'utf8',
-    });
-    res.json(JSON.parse(products));
+    res.json(products);
   } catch (e) {
     res.status(500).send(new Error(e.message));
   }
@@ -33,12 +33,7 @@ export const getProducts = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   try {
-    const products = await fs.readFile('./products.json', {
-      encoding: 'utf8',
-    });
-    const product = JSON.parse(products).find(
-      (product) => product.id === req.params.id
-    );
+    const product = products.find((product) => product.id === req.params.id);
     res.json(product);
   } catch (e) {
     res.status(500).send(new Error(e.message));
@@ -47,13 +42,8 @@ export const getProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    const products = await fs.readFile('./products.json', {
-      encoding: 'utf8',
-    });
-    const product = JSON.parse(products).find(
-      (product) => product.id === req.params.id
-    );
-    const productIndex = JSON.parse(products).findIndex(
+    const product = products.find((product) => product.id === req.params.id);
+    const productIndex = products.findIndex(
       (product) => product.id === req.params.id
     );
     if (product) {
@@ -62,9 +52,9 @@ export const updateProduct = async (req, res) => {
         name: req.body.name || product.name,
         price: req.body.price || product.price,
       };
-      const copyProducts = [...JSON.parse(products)];
+      const copyProducts = [...products];
       copyProducts.splice(productIndex, 1, updatedProduct);
-      await fs.writeFile('./products.json', JSON.stringify(copyProducts));
+      await fs.writeFileSync('./products.json', JSON.stringify(copyProducts));
       res.json(updatedProduct);
     } else {
       res.status(404).send("Can't find product");
@@ -76,17 +66,14 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
-    const products = await fs.readFile('./products.json', {
-      encoding: 'utf8',
-    });
-    const productId = JSON.parse(products).find(
+    const productId = products.find(
       (product) => product.id === req.params.id
     )?.id;
     if (productId) {
-      await fs.writeFile(
+      await fs.writeFileSync(
         './products.json',
         JSON.stringify([
-          ...JSON.parse(products).filter((product) => product.id !== productId),
+          ...products.filter((product) => product.id !== productId),
         ])
       );
       res.json({ id: productId });
