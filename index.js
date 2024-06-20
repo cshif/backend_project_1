@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
   res.json('yo');
 });
 
-app.post('/users', async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const users = await fs.readFile('./users.json', {
       encoding: 'utf8',
@@ -37,9 +37,9 @@ app.post('/users', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.get('/users', async (req, res) => {
+const getUsers = async (req, res) => {
   try {
     const users = await fs.readFile('./users.json', {
       encoding: 'utf8',
@@ -48,9 +48,9 @@ app.get('/users', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.get('/users/:id', async (req, res) => {
+const getUser = async (req, res) => {
   try {
     const users = await fs.readFile('./users.json', {
       encoding: 'utf8',
@@ -60,9 +60,9 @@ app.get('/users/:id', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.put('/users/:id', async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const users = await fs.readFile('./users.json', {
       encoding: 'utf8',
@@ -87,9 +87,9 @@ app.put('/users/:id', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.delete('/users/:id', async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const users = await fs.readFile('./users.json', {
       encoding: 'utf8',
@@ -111,9 +111,12 @@ app.delete('/users/:id', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.post('/products', async (req, res) => {
+app.route('/users').post(createUser).get(getUsers);
+app.route('/users/:id').get(getUser).put(updateUser).delete(deleteUser);
+
+const createProduct = async (req, res) => {
   try {
     const products = await fs.readFile('./products.json', {
       encoding: 'utf8',
@@ -131,9 +134,9 @@ app.post('/products', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.get('/products', async (req, res) => {
+const getProducts = async (req, res) => {
   try {
     const products = await fs.readFile('./products.json', {
       encoding: 'utf8',
@@ -142,9 +145,9 @@ app.get('/products', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.get('/products/:id', async (req, res) => {
+const getProduct = async (req, res) => {
   try {
     const products = await fs.readFile('./products.json', {
       encoding: 'utf8',
@@ -156,9 +159,9 @@ app.get('/products/:id', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.put('/products/:id', async (req, res) => {
+const updateProduct = async (req, res) => {
   try {
     const products = await fs.readFile('./products.json', {
       encoding: 'utf8',
@@ -185,9 +188,9 @@ app.put('/products/:id', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
 
-app.delete('/products/:id', async (req, res) => {
+const deleteProduct = async (req, res) => {
   try {
     const products = await fs.readFile('./products.json', {
       encoding: 'utf8',
@@ -209,7 +212,14 @@ app.delete('/products/:id', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+};
+
+app.route('/products').post(createProduct).get(getProducts);
+app
+  .route('/products/:id')
+  .get(getProduct)
+  .put(updateProduct)
+  .delete(deleteProduct);
 
 const PORT = 3009;
 app.listen(PORT, () => {
