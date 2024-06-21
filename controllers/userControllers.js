@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import catchAsync from '../utils/catchAsync.js';
+import AppError from '../core/AppError.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,36 +33,43 @@ export const getUsers = catchAsync(async (req, res, next) => {
 
 export const getUser = catchAsync(async (req, res, next) => {
   const user = users.find((user) => user.id === req.params.id);
+
+  if (!user) {
+    return next(new AppError("Can't find the user", 404));
+  }
+
   res.json(user);
 });
 
 export const updateUser = catchAsync(async (req, res, next) => {
   const user = users.find((user) => user.id === req.params.id);
-  const userIndex = users.findIndex((user) => user.id === req.params.id);
-  if (user) {
-    const updatedUser = {
-      id: user.id,
-      name: req.body.name || user.name,
-      email: req.body.email || user.email,
-    };
-    const copyUsers = [...users];
-    copyUsers.splice(userIndex, 1, updatedUser);
-    await fs.writeFileSync('./users.json', JSON.stringify(copyUsers));
-    res.json(updatedUser);
-  } else {
-    res.status(404).send("Can't find user");
+
+  if (!user) {
+    return next(new AppError("Can't find the user", 404));
   }
+
+  const updatedUser = {
+    id: user.id,
+    name: req.body.name || user.name,
+    email: req.body.email || user.email,
+  };
+  const copyUsers = [...users];
+  const userIndex = users.findIndex((user) => user.id === req.params.id);
+  copyUsers.splice(userIndex, 1, updatedUser);
+  await fs.writeFileSync('./users.json', JSON.stringify(copyUsers));
+  res.json(updatedUser);
 });
 
 export const deleteUser = catchAsync(async (req, res, next) => {
   const userId = users.find((user) => user.id === req.params.id)?.id;
-  if (userId) {
-    await fs.writeFileSync(
-      './users.json',
-      JSON.stringify([...users.filter((user) => user.id !== userId)])
-    );
-    res.json({ id: userId });
-  } else {
-    res.status(404).send("Can't find user");
+
+  if (!userId) {
+    return next(new AppError("Can't find the user", 404));
   }
+
+  await fs.writeFileSync(
+    './users.json',
+    JSON.stringify([...users.filter((user) => user.id !== userId)])
+  );
+  res.json({ id: userId });
 });
