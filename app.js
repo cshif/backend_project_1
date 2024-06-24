@@ -1,6 +1,5 @@
 import express from 'express';
 import morgan from 'morgan';
-import { pool } from './database/pg.js';
 import unhandledRoutesHandler from './middlewares/unhandledRoutesHandler.js';
 import globalErrorHandler from './middlewares/globalErrorHandler.js';
 import userRouter from './routes/userRoutes.js';
