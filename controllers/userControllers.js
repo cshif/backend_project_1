@@ -1,75 +1,83 @@
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import * as db from '../db/index.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../core/AppError.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const users = JSON.parse(fs.readFileSync(`${__dirname}/../users.json`));
-
 export const createUser = catchAsync(async (req, res, next) => {
   // 可以寫入 users 的條件：有 email，且 email 沒有使用過
-  if (
-    typeof req.body === 'object' &&
-    Object.keys(req.body).includes('email') &&
-    !users.filter((user) => user.email === req.body.email).length
-  ) {
-    const newUser = {
-      id: crypto.randomUUID(),
-      name: req.body.name,
-      email: req.body.email,
-    };
-    await fs.writeFileSync('./users.json', JSON.stringify([...users, newUser]));
-    res.json(newUser);
+  if (Object.keys(req.body).includes('email')) {
+    const { name, email, password, lang, roleId, avatarURL } = req.body;
+    const { rows } = await db.query(
+      `INSERT INTO users(
+        name, email, password, lang, "roleId", "avatarURL"
+      ) VALUES ($1,$2,$3,$4,$5,$6) 
+      RETURNING *`,
+      [name, email, password, lang, roleId, avatarURL]
+    );
+    res.json(rows[0]);
   } else {
     res.status(404).send('Invalid data.');
   }
 });
 
 export const getUsers = catchAsync(async (req, res, next) => {
-  res.json(users);
+  const { rows } = await db.query(`SELECT * FROM users`);
+  res.json({ rows });
 });
 
 export const getUser = catchAsync(async (req, res, next) => {
-  const user = users.find((user) => user.id === req.params.id);
+  const { rows } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+    req.params.id,
+  ]);
 
-  if (!user) {
+  if (!rows.length) {
     return next(new AppError("Can't find the user", 404));
   }
 
-  res.json(user);
+  res.json(rows[0]);
 });
 
 export const updateUser = catchAsync(async (req, res, next) => {
-  const user = users.find((user) => user.id === req.params.id);
+  const { name, email, password, lang, roleId, avatarURL } = req.body;
+  const userId = Number(req.params.id);
 
-  if (!user) {
+  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+    userId,
+  ]);
+
+  if (!users.length) {
     return next(new AppError("Can't find the user", 404));
   }
 
-  const updatedUser = {
-    id: user.id,
-    name: req.body.name || user.name,
-    email: req.body.email || user.email,
-  };
-  const copyUsers = [...users];
-  const userIndex = users.findIndex((user) => user.id === req.params.id);
-  copyUsers.splice(userIndex, 1, updatedUser);
-  await fs.writeFileSync('./users.json', JSON.stringify(copyUsers));
-  res.json(updatedUser);
+  const { rows } = await db.query(
+    `UPDATE users
+       SET name        = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE name END,
+           email       = CASE WHEN COALESCE($2) IS NOT NULL THEN $2 ELSE email END,
+           password    = CASE WHEN COALESCE($3) IS NOT NULL THEN $3 ELSE password END,
+           lang        = CASE WHEN COALESCE($4) IS NOT NULL THEN $4 ELSE lang END,
+           "roleId"    = CASE WHEN COALESCE($5::int) IS NOT NULL THEN $5 ELSE "roleId" END,
+           "avatarURL" = CASE WHEN COALESCE($6) IS NOT NULL THEN $6 ELSE "avatarURL" END
+       WHERE id = $7
+       RETURNING *`,
+    [name, email, password, lang, roleId, avatarURL, userId]
+  );
+  res.json(rows[0]);
 });
 
 export const deleteUser = catchAsync(async (req, res, next) => {
-  const userId = users.find((user) => user.id === req.params.id)?.id;
+  const userId = Number(req.params.id);
 
-  if (!userId) {
+  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+    userId,
+  ]);
+
+  if (!users.length) {
     return next(new AppError("Can't find the user", 404));
   }
 
-  await fs.writeFileSync(
-    './users.json',
-    JSON.stringify([...users.filter((user) => user.id !== userId)])
+  const { rows } = await db.query(
+    `DELETE FROM users WHERE id = $1 RETURNING id`,
+    [userId]
   );
-  res.json({ id: userId });
+
+  res.json(rows[0]);
 });
