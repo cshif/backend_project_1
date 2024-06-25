@@ -1,73 +1,74 @@
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../core/AppError.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const products = JSON.parse(fs.readFileSync(`${__dirname}/../products.json`));
+import * as db from '../db/index.js';
 
 export const createProduct = catchAsync(async (req, res, next) => {
-  const newProduct = {
-    id: crypto.randomUUID(),
-    name: req.body.name,
-    price: req.body.price,
-  };
-  await fs.writeFileSync(
-    './products.json',
-    JSON.stringify([...products, newProduct])
+  const { name, price } = req.body;
+  const { rows } = await db.query(
+    `INSERT INTO products(name, price) VALUES ($1,$2) RETURNING id, name`,
+    [name, price]
   );
-  res.json(newProduct);
+  res.json(rows[0]);
 });
 
 export const getProducts = catchAsync(async (req, res, next) => {
-  res.json(products);
+  const { rows } = await db.query(`SELECT * FROM products`);
+  res.json({ rows });
 });
 
 export const getProduct = catchAsync(async (req, res, next) => {
-  const product = products.find((product) => product.id === req.params.id);
+  const { rows } = await db.query(`SELECT * FROM products WHERE id = $1`, [
+    req.params.id,
+  ]);
 
-  if (!product) {
+  if (!rows.length) {
     return next(new AppError("Can't find the product", 404));
   }
 
-  res.json(product);
+  res.json(rows[0]);
 });
 
 export const updateProduct = catchAsync(async (req, res, next) => {
-  const product = products.find((product) => product.id === req.params.id);
+  const { name, price } = req.body;
+  console.log(typeof price);
+  const productId = Number(req.params.id);
 
-  if (!product) {
+  const { rows: products } = await db.query(
+    `SELECT * FROM products WHERE id = $1`,
+    [req.params.id]
+  );
+
+  if (!products.length) {
     return next(new AppError("Can't find the product", 404));
   }
 
-  const updatedProduct = {
-    id: product.id,
-    name: req.body.name || product.name,
-    price: req.body.price || product.price,
-  };
-  const copyProducts = [...products];
-  const productIndex = products.findIndex(
-    (product) => product.id === req.params.id
+  const { rows } = await db.query(
+    `UPDATE products 
+     SET name  = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE name END,
+         price = CASE WHEN COALESCE($2::numeric) IS NOT NULL THEN $2 ELSE price END
+     WHERE id = $3 
+     RETURNING *
+    `,
+    [name, price, productId]
   );
-  copyProducts.splice(productIndex, 1, updatedProduct);
-  await fs.writeFileSync('./products.json', JSON.stringify(copyProducts));
-  res.json(updatedProduct);
+  res.json(rows[0]);
 });
 
 export const deleteProduct = catchAsync(async (req, res, next) => {
-  const productId = products.find(
-    (product) => product.id === req.params.id
-  )?.id;
+  const productId = Number(req.params.id);
+  const { rows: products } = await db.query(
+    `SELECT * FROM products WHERE id = $1`,
+    [req.params.id]
+  );
 
-  if (!productId) {
+  if (!products.length) {
     return next(new AppError("Can't find the product", 404));
   }
 
-  await fs.writeFileSync(
-    './products.json',
-    JSON.stringify([...products.filter((product) => product.id !== productId)])
+  const { rows } = await db.query(
+    `DELETE FROM products WHERE id = $1 RETURNING id`,
+    [productId]
   );
-  res.json({ id: productId });
+
+  res.json(rows[0]);
 });
