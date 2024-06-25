@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 const sendErrorProd = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -30,4 +32,5 @@ export default (err, req, res, next) => {
       });
     }
   }
+  console.log('which environment?');
 };
