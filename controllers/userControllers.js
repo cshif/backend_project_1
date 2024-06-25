@@ -4,19 +4,19 @@ import AppError from '../core/AppError.js';
 
 export const createUser = catchAsync(async (req, res, next) => {
   // 可以寫入 users 的條件：有 email，且 email 沒有使用過
-  if (Object.keys(req.body).includes('email')) {
-    const { name, email, password, lang, roleId, avatarURL } = req.body;
-    const { rows } = await db.query(
-      `INSERT INTO users(
-        name, email, password, lang, "roleId", "avatarURL"
-      ) VALUES ($1,$2,$3,$4,$5,$6) 
-      RETURNING *`,
-      [name, email, password, lang, roleId, avatarURL]
-    );
-    res.json(rows[0]);
-  } else {
-    res.status(404).send('Invalid data.');
+  const { name, email, password, lang, roleId, avatarURL } = req.body;
+  if (!email) {
+    return next(new AppError('Lack of required data', 404));
   }
+
+  const { rows } = await db.query(
+    `INSERT INTO users(
+      name, email, password, lang, "roleId", "avatarURL"
+    ) VALUES ($1,$2,$3,$4,$5,$6) 
+    RETURNING *`,
+    [name, email, password, lang, roleId, avatarURL]
+  );
+  res.json(rows[0]);
 });
 
 export const getUsers = catchAsync(async (req, res, next) => {
