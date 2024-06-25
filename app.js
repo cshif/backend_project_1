@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import unhandledRoutesHandler from './middlewares/unhandledRoutesHandler.js';
 import globalErrorHandler from './middlewares/globalErrorHandler.js';
+import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import productRouter from './routes/productRoutes.js';
 
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
   res.json('yo');
 });
 
+app.use('/', authRouter);
 app.use('/users', userRouter);
 app.use('/products', productRouter);
 
