@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
+import Role from './roleModel.js';
 
-class User {
-  constructor({ passwordChangedAt }) {
+class User extends Role {
+  constructor({ passwordChangedAt, roleId }) {
+    super({ roleId });
     this.passwordChangedAt = passwordChangedAt;
   }
 

@@ -96,5 +96,16 @@ export const protectRoute = catchAsync(async (req, res, next) => {
     return next(new AppError('Unauthorized', 401));
   }
 
+  req.user = new User(users[0]);
   next();
 });
+
+export const restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('Forbidden', 403));
+    }
+
+    next();
+  };
