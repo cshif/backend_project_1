@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { promisify } from 'util';
 import * as db from '../db/index.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -60,4 +61,40 @@ export const login = catchAsync(async (req, res, next) => {
     status: 'success',
     token,
   });
+});
+
+export const protectRoute = catchAsync(async (req, res, next) => {
+  /*
+   * step 1. if token exist in header
+   * step 2. verify token
+   * step 3. if user exist
+   * step 4. if user changed password after token issued
+   * */
+
+  const { authorization } = req.headers;
+  console.log({ authorization });
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    return next(new AppError('Unauthorized', 401));
+  }
+
+  const token = authorization.split(' ')[1];
+  const decodedToken = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET_KEY
+  );
+  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+    decodedToken.id,
+  ]);
+  if (!users.length) {
+    return next(new AppError("Can't find the user", 404));
+  }
+
+  const isUserChangedPasswordAfterTokenIssued = new User(
+    users[0]
+  ).isChangedPasswordAfterTokenIssued(decodedToken.iat);
+  if (isUserChangedPasswordAfterTokenIssued) {
+    return next(new AppError('Unauthorized', 401));
+  }
+
+  next();
 });
