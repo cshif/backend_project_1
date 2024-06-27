@@ -30,7 +30,7 @@ export const getUsers = catchAsync(async (req, res, next) => {
 
 export const getUser = catchAsync(async (req, res, next) => {
   const { rows } = await db.query(`SELECT * FROM users WHERE id = $1`, [
-    req.params.id,
+    Number(req.params.id),
   ]);
 
   if (!rows.length) {
