@@ -3492,6 +3492,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nodemailer@npm:^6.9.14":
+  version: 6.9.14
+  resolution: "nodemailer@npm:6.9.14"
+  checksum: 10c0/2542986849bc6ec2bf12fb7b72226da0ce9c6a0946216dea020d9eedee3ac1a4eb2413f59772a3ddd4bb9188d5ce859167a030c065719473f71319e052a319dc
+  languageName: node
+  linkType: hard
+
 "nodemon@npm:^3.1.3":
   version: 3.1.3
   resolution: "nodemon@npm:3.1.3"
@@ -3953,6 +3960,7 @@ __metadata:
     jest: "npm:^29.7.0"
     jsonwebtoken: "npm:^9.0.2"
     morgan: "npm:^1.10.0"
+    nodemailer: "npm:^6.9.14"
     nodemon: "npm:^3.1.3"
     oxlint: "npm:^0.4.4"
     pg: "npm:^8.12.0"
