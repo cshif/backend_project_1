@@ -191,3 +191,54 @@ export const resetPassword = catchAsync(async (req, res, next) => {
     token,
   });
 });
+
+export const updateUserPassword = catchAsync(async (req, res, next) => {
+  /*
+   * step 1. get user
+   * step 2. check if old password is correct
+   * step 3. update new password
+   * step 4. send new JWT token to user
+   * */
+
+  const { authorization } = req.headers;
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    return next(new AppError('Unauthorized', 401));
+  }
+
+  const token = authorization.split(' ')[1];
+  const decodedToken = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET_KEY
+  );
+  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+    decodedToken.id,
+  ]);
+  if (!users.length) {
+    return next(new AppError("Can't find the user", 404));
+  }
+
+  const isOldPasswordCorrect = await User.comparePassword(
+    req.body.password,
+    users[0].password
+  );
+  if (!isOldPasswordCorrect) {
+    return next(new AppError('Wrong old password', 401));
+  }
+
+  const newHashedPassword = await bcrypt.hash(req.body.newPassword, 12);
+  await db.query(
+    `
+    UPDATE users 
+    SET password                      = $1, 
+        "passwordChangedAt"           = $2
+    WHERE id = $3`,
+    [newHashedPassword, new Date(Date.now()).toISOString(), users[0].id]
+  );
+
+  const newToken = await getTokenById(users[0].id);
+
+  res.status(200).json({
+    status: 'success',
+    token: newToken,
+  });
+});
