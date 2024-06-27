@@ -7,6 +7,6 @@ router.post('/register', authControllers.register);
 router.post('/login', authControllers.login);
 router.post('/forget-password', authControllers.forgetPassword);
 router.patch('/reset-password/:token', authControllers.resetPassword);
-router.patch('/update-password', authControllers.updateUserPassword);
+router.patch('/update-password', authControllers.updateMyPassword);
 
 export default router;

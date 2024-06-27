@@ -199,7 +199,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   });
 });
 
-export const updateUserPassword = catchAsync(async (req, res, next) => {
+export const updateMyPassword = catchAsync(async (req, res, next) => {
   /*
    * step 1. get user
    * step 2. check if old password is correct
