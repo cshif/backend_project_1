@@ -173,6 +173,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Invalid token', 400));
   }
 
+  const newHashedPassword = await bcrypt.hash(password, 12);
   await db.query(
     `
     UPDATE users 
@@ -181,7 +182,13 @@ export const resetPassword = catchAsync(async (req, res, next) => {
         "passwordResetTokenExpiresIn" = $3,
         "passwordChangedAt"           = $4
     WHERE id = $5`,
-    [password, null, null, new Date(Date.now()).toISOString(), users[0].id]
+    [
+      newHashedPassword,
+      null,
+      null,
+      new Date(Date.now()).toISOString(),
+      users[0].id,
+    ]
   );
 
   const token = await getTokenById(users[0].id);
