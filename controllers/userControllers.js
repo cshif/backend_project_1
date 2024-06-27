@@ -10,12 +10,15 @@ export const createUser = catchAsync(async (req, res, next) => {
     return next(new AppError('Lack of required data', 404));
   }
 
+  // TODO validate password?
+
+  const hashedPassword = await bcrypt.hash(password, 12);
   const { rows } = await db.query(
     `INSERT INTO users(
       name, email, password, lang, "roleId", "avatarURL"
     ) VALUES ($1,$2,$3,$4,$5,$6) 
     RETURNING *`,
-    [name, email, password, lang, roleId, avatarURL]
+    [name, email, hashedPassword, lang, roleId, avatarURL]
   );
   res.json(rows[0]);
 });
