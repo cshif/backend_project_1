@@ -249,3 +249,70 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
     token: newToken,
   });
 });
+
+export const updateMe = catchAsync(async (req, res, next) => {
+  /*
+   * step 1. get user based on token
+   * step 2. update columns
+   * */
+
+  const { authorization } = req.headers;
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    return next(new AppError('Unauthorized', 401));
+  }
+
+  const token = authorization.split(' ')[1];
+  const decodedToken = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET_KEY
+  );
+  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+    decodedToken.id,
+  ]);
+  if (!users.length) {
+    return next(new AppError("Can't find the user", 404));
+  }
+
+  const { email, name, lang, avatarURL } = req.body;
+  const { rows } = await db.query(
+    `UPDATE users
+       SET email       = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE email END,
+           name        = CASE WHEN COALESCE($2) IS NOT NULL THEN $2 ELSE name END,
+           lang        = CASE WHEN COALESCE($3) IS NOT NULL THEN $3 ELSE lang END,
+           "avatarURL" = CASE WHEN COALESCE($4) IS NOT NULL THEN $4 ELSE "avatarURL" END
+       WHERE id = $5
+       RETURNING *`,
+    [email, name, lang, avatarURL, users[0].id]
+  );
+  res.json(rows[0]);
+});
+
+export const deleteMe = catchAsync(async (req, res, next) => {
+  /*
+   * step 1. get user based on token
+   * step 2. inactive user
+   * */
+
+  const { authorization } = req.headers;
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    return next(new AppError('Unauthorized', 401));
+  }
+
+  const token = authorization.split(' ')[1];
+  const decodedToken = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET_KEY
+  );
+  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+    decodedToken.id,
+  ]);
+  if (!users.length) {
+    return next(new AppError("Can't find the user", 404));
+  }
+
+  const { rows } = await db.query(
+    `UPDATE users SET active = $1 WHERE id = $2`,
+    [false, users[0].id]
+  );
+  res.json(rows[0]);
+});
