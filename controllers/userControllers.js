@@ -41,7 +41,7 @@ export const getUser = catchAsync(async (req, res, next) => {
 });
 
 export const updateUser = catchAsync(async (req, res, next) => {
-  const { name, email, password, lang, roleId, avatarURL } = req.body;
+  const { name, password, lang, roleId, avatarURL } = req.body;
   const userId = Number(req.params.id);
 
   const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
