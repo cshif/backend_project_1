@@ -1,11 +1,13 @@
 import 'dotenv/config';
 import { promisify } from 'util';
+import crypto from 'crypto';
 import * as db from '../db/index.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../core/AppError.js';
 import User from '../models/userModel.js';
+import mailer from '../utils/mailer.js';
 
 const getTokenById = async (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
@@ -108,3 +110,84 @@ export const restrictTo =
 
     next();
   };
+
+export const forgetPassword = catchAsync(async (req, res, next) => {
+  /*
+   * step 1. get user based on email
+   * step 2. generate random reset token
+   * step 3. send email
+   * */
+
+  const { rows: users } = await db.query(
+    `SELECT * FROM users WHERE email = $1`,
+    [req.body.email]
+  );
+  if (!users.length) {
+    return next(new AppError("Can't find the user", 404));
+  }
+
+  const { resetToken, resetTokenExpiresIn, hashedResetToken } = new User(
+    users[0]
+  ).passwordResetTokenInfo;
+  await db.query(
+    `UPDATE users SET "passwordResetToken" = $1, "passwordResetTokenExpiresIn" = $2 WHERE email = $3`,
+    [hashedResetToken, resetTokenExpiresIn, users[0].email]
+  );
+
+  try {
+    const resetURL = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+    await mailer({
+      email: users[0].email,
+      subject: 'reset password',
+      content: `reset with this url: ${resetURL}.`,
+    });
+    res.status(200).send('reset password email sent successfully.');
+  } catch (e) {
+    await db.query(
+      `UPDATE users SET "passwordResetToken" = $1, "passwordResetTokenExpiresIn" = $2 WHERE email = $3`,
+      [undefined, undefined, users[0].email]
+    );
+    next(new AppError(e.message, 500));
+  }
+});
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+  /*
+   * step 1. get user based on token
+   * step 2. if token didn't expire && user exist, set new password
+   * step 3. update changePasswordAt
+   * step 4. send new JWT token to user
+   * */
+
+  const { password } = req.body;
+  const hashedResetToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+  const { rows: users } = await db.query(
+    `SELECT * FROM users WHERE "passwordResetToken" = $1 AND "passwordResetTokenExpiresIn" > NOW()`,
+    [hashedResetToken]
+  );
+
+  if (!users.length) {
+    return next(new AppError('Invalid token', 400));
+  }
+
+  await db.query(
+    `
+    UPDATE users 
+    SET password                      = $1, 
+        "passwordResetToken"          = $2, 
+        "passwordResetTokenExpiresIn" = $3,
+        "passwordChangedAt"           = $4
+    WHERE id = $5`,
+    [password, null, null, new Date(Date.now()).toISOString(), users[0].id]
+  );
+
+  const token = await getTokenById(users[0].id);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});
