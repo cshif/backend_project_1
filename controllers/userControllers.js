@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import * as db from '../db/index.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../core/AppError.js';
@@ -48,17 +49,17 @@ export const updateUser = catchAsync(async (req, res, next) => {
     return next(new AppError("Can't find the user", 404));
   }
 
+  const newHashedPassword = await bcrypt.hash(password, 12);
   const { rows } = await db.query(
     `UPDATE users
        SET name        = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE name END,
-           email       = CASE WHEN COALESCE($2) IS NOT NULL THEN $2 ELSE email END,
-           password    = CASE WHEN COALESCE($3) IS NOT NULL THEN $3 ELSE password END,
-           lang        = CASE WHEN COALESCE($4) IS NOT NULL THEN $4 ELSE lang END,
-           "roleId"    = CASE WHEN COALESCE($5::int) IS NOT NULL THEN $5 ELSE "roleId" END,
-           "avatarURL" = CASE WHEN COALESCE($6) IS NOT NULL THEN $6 ELSE "avatarURL" END
-       WHERE id = $7
+           password    = CASE WHEN COALESCE($2) IS NOT NULL THEN $2 ELSE password END,
+           lang        = CASE WHEN COALESCE($3) IS NOT NULL THEN $3 ELSE lang END,
+           "roleId"    = CASE WHEN COALESCE($4::int) IS NOT NULL THEN $4 ELSE "roleId" END,
+           "avatarURL" = CASE WHEN COALESCE($5) IS NOT NULL THEN $5 ELSE "avatarURL" END
+       WHERE id = $6
        RETURNING *`,
-    [name, email, password, lang, roleId, avatarURL, userId]
+    [name, newHashedPassword, lang, roleId, avatarURL, userId]
   );
   res.json(rows[0]);
 });
