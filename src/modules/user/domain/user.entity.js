@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import Role from '../role/roleModel.js';
+import Role from '../../role/domain/role.entity.js';
 
 class User extends Role {
   constructor({ passwordChangedAt, roleId }) {

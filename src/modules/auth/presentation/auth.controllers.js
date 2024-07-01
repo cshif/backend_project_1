@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import catchAsync from '../../../common/utils/catchAsync.js';
 import { AppError } from '../../../common/class/index.js';
-import User from '../../user/userModel.js';
+import User from '../../user/domain/user.entity.js';
 import mailer from '../../../common/utils/mailer.js';
 
 const getTokenById = async (id) =>
