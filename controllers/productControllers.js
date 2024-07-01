@@ -1,5 +1,5 @@
 import catchAsync from '../utils/catchAsync.js';
-import AppError from '../core/AppError.js';
+import { AppError } from '../core/class';
 import * as db from '../db/index.js';
 
 export const createProduct = catchAsync(async (req, res, next) => {
