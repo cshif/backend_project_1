@@ -1,13 +1,13 @@
 import 'dotenv/config';
 import { promisify } from 'util';
 import crypto from 'crypto';
-import * as db from '../db/index.js';
+import * as db from '../../../config/db/index.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import catchAsync from '../utils/catchAsync.js';
-import { AppError } from '../core/class';
-import User from '../models/userModel.js';
-import mailer from '../utils/mailer.js';
+import catchAsync from '../../../common/utils/catchAsync.js';
+import { AppError } from '../../../common/class/index.js';
+import User from '../../user/userModel.js';
+import mailer from '../../../common/utils/mailer.js';
 
 const getTokenById = async (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET_KEY, {

@@ -1,6 +1,6 @@
-import catchAsync from '../utils/catchAsync.js';
-import { AppError } from '../core/class';
-import * as db from '../db/index.js';
+import catchAsync from '../../../common/utils/catchAsync.js';
+import { AppError } from '../../../common/class/index.js';
+import * as db from '../../../config/db/index.js';
 
 export const createProduct = catchAsync(async (req, res, next) => {
   const { name, price } = req.body;

@@ -1,7 +1,7 @@
 import express from 'express';
-import * as productControllers from '../controllers/productControllers.js';
-import * as authControllers from '../controllers/authControllers.js';
-import roles from '../constants/roles.js';
+import * as productControllers from './productControllers.js';
+import * as authControllers from '../../auth/presentation/authControllers.js';
+import roles from '../../../constants/roles.js';
 
 const router = express.Router();
 

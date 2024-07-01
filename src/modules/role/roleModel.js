@@ -1,4 +1,4 @@
-import roles from '../constants/roles.js';
+import roles from '../../constants/roles.js';
 
 class Role {
   constructor({ roleId }) {

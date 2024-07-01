@@ -2,7 +2,7 @@
   "name": "project_1",
   "type": "module",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon src/server.js",
     "test": "jest"
   },
   "packageManager": "yarn@4.3.0",
