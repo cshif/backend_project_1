@@ -1,6 +1,6 @@
 import express from 'express';
-import * as productControllers from './productControllers.js';
-import * as authControllers from '../../auth/presentation/authControllers.js';
+import * as productControllers from './product.controllers.js';
+import * as authControllers from '../../auth/presentation/auth.controllers.js';
 import roles from '../../../constants/roles.js';
 
 const router = express.Router();

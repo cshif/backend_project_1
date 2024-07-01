@@ -2,9 +2,9 @@ import express from 'express';
 import morgan from 'morgan';
 import unhandledRoutesHandler from './common/handler/unhandledRoutesHandler.js';
 import globalErrorHandler from './common/handler/globalErrorHandler.js';
-import authRouter from './modules/auth/presentation/authRoutes.js';
-import userRouter from './modules/user/presentation/userRoutes.js';
-import productRouter from './modules/product/presentation/productRoutes.js';
+import authRouter from './modules/auth/presentation/auth.routes.js';
+import userRouter from './modules/user/presentation/user.routes.js';
+import productRouter from './modules/product/presentation/product.routes.js';
 
 process.on('uncaughtException', (error) => {
   console.error('Uncaught exception, shutting down...', {
