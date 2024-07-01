@@ -6,7 +6,7 @@ import AppError from '../core/AppError.js';
 export const createUser = catchAsync(async (req, res, next) => {
   // 可以寫入 users 的條件：有 email，且 email 沒有使用過
   const { name, email, password, lang, roleId, avatarURL } = req.body;
-  if (!email) {
+  if (!email || !password) {
     return next(new AppError('Lack of required data', 404));
   }
 
