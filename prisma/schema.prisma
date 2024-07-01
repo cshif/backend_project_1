@@ -25,8 +25,17 @@ model users {
   passwordResetTokenExpiresIn DateTime? @db.Timestamptz(6)
   lang                        String?   @db.VarChar(255)
   roleId                      Int?
+  role                        roles?    @relation(fields: [roleId], references: [id])
   avatarURL                   String?   @db.VarChar(255)
   active                      Boolean?
   createdAt                   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt                   DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+model roles {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @db.Timestamptz(6)
+  users     users[]
 }
