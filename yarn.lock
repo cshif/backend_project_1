@@ -2408,6 +2408,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"inversify@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "inversify@npm:6.0.2"
+  checksum: 10c0/ac532c9a6e45785dcfd5117f19b5c1705a7ebddf432152cd2d5be3e951d9745fec9ae3c39c166b34945458b4eda3e37afae6a63cccc5033d545b450d54221220
+  languageName: node
+  linkType: hard
+
 "ip-address@npm:^9.0.5":
   version: 9.0.5
   resolution: "ip-address@npm:9.0.5"
@@ -4027,6 +4034,7 @@ __metadata:
     bcrypt: "npm:^5.1.1"
     dotenv: "npm:^16.4.5"
     express: "npm:^4.19.2"
+    inversify: "npm:^6.0.2"
     jest: "npm:^29.7.0"
     jsonwebtoken: "npm:^9.0.2"
     morgan: "npm:^1.10.0"
@@ -4036,6 +4044,7 @@ __metadata:
     pg: "npm:^8.12.0"
     prettier: "npm:3.3.2"
     prisma: "npm:^5.16.1"
+    reflect-metadata: "npm:^0.2.2"
   languageName: unknown
   linkType: soft
 
@@ -4135,6 +4144,13 @@ __metadata:
   dependencies:
     picomatch: "npm:^2.2.1"
   checksum: 10c0/6fa848cf63d1b82ab4e985f4cf72bd55b7dcfd8e0a376905804e48c3634b7e749170940ba77b32804d5fe93b3cc521aa95a8d7e7d725f830da6d93f3669ce66b
+  languageName: node
+  linkType: hard
+
+"reflect-metadata@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "reflect-metadata@npm:0.2.2"
+  checksum: 10c0/1cd93a15ea291e420204955544637c264c216e7aac527470e393d54b4bb075f10a17e60d8168ec96600c7e0b9fcc0cb0bb6e91c3fbf5b0d8c9056f04e6ac1ec2
   languageName: node
   linkType: hard
 
