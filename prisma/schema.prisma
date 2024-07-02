@@ -7,19 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model product {
+model Product {
   id        BigInt     @id @default(autoincrement())
   name      String?    @db.VarChar(255)
   price     Decimal?   @db.Decimal
   createdAt DateTime   @default(now()) @db.Timestamptz(6)
   updatedAt DateTime   @default(now()) @db.Timestamptz(6)
-  plan      plan?      @relation(fields: [planId], references: [id])
+  plan      Plan?      @relation(fields: [planId], references: [id])
   planId    Int?
-  userPlans userPlan[]
-  reviews   review[]
+  userPlans UserPlan[]
+  reviews   Review[]
 }
 
-model user {
+model User {
   id                          BigInt    @id @default(autoincrement())
   name                        String?   @db.VarChar(255)
   email                       String    @unique @db.VarChar(255)
@@ -29,43 +29,43 @@ model user {
   passwordResetTokenExpiresIn DateTime? @db.Timestamptz(6)
   lang                        String?   @db.VarChar(255)
   roleId                      Int?
-  role                        role?     @relation(fields: [roleId], references: [id])
+  role                        Role?     @relation(fields: [roleId], references: [id])
   avatarURL                   String?   @db.VarChar(255)
   active                      Boolean?
   createdAt                   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt                   DateTime  @default(now()) @db.Timestamptz(6)
-  userPlan                    userPlan?
+  userPlan                    UserPlan?
 }
 
-model role {
+model Role {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
-  users     user[]
+  users     User[]
 }
 
-model plan {
+model Plan {
   id        Int       @id @default(autoincrement())
   name      String
   createdAt DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt DateTime  @default(now()) @db.Timestamptz(6)
-  products  product[]
+  products  Product[]
 }
 
-model userPlan {
+model UserPlan {
   id        Int      @id @default(autoincrement())
-  user      user     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   userId    BigInt   @unique
-  product   product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
   productId BigInt   @unique
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
 }
 
-model review {
+model Review {
   id           BigInt   @id @default(autoincrement())
-  product      product  @relation(fields: [productId], references: [id])
+  product      Product  @relation(fields: [productId], references: [id])
   productId    BigInt   @unique
   rating       Int      @default(0)
   title        String
