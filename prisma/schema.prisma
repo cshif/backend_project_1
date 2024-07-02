@@ -8,15 +8,11 @@ datasource db {
 }
 
 model Product {
-  id        BigInt     @id @default(autoincrement())
-  name      String?    @db.VarChar(255)
-  price     Decimal?   @db.Decimal
-  createdAt DateTime   @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime   @default(now()) @db.Timestamptz(6)
-  plan      Plan?      @relation(fields: [planId], references: [id])
-  planId    Int?
-  userPlans UserPlan[]
-  reviews   Review[]
+  id        BigInt   @id @default(autoincrement())
+  name      String?  @db.VarChar(255)
+  price     Decimal? @db.Decimal
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @db.Timestamptz(6)
 }
 
 model User {
@@ -29,47 +25,34 @@ model User {
   passwordResetTokenExpiresIn DateTime? @db.Timestamptz(6)
   lang                        String?   @db.VarChar(255)
   roleId                      Int?
-  role                        Role?     @relation(fields: [roleId], references: [id])
   avatarURL                   String?   @db.VarChar(255)
   active                      Boolean?
   createdAt                   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt                   DateTime  @default(now()) @db.Timestamptz(6)
-  userPlan                    UserPlan?
-}
-
-model Role {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @db.Timestamptz(6)
-  users     User[]
 }
 
 model Plan {
-  id        Int       @id @default(autoincrement())
-  name      String
-  createdAt DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime  @default(now()) @db.Timestamptz(6)
-  products  Product[]
+  id         Int      @id @default(autoincrement())
+  name       String
+  productIds BigInt[] @default([])
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @db.Timestamptz(6)
 }
 
 model UserPlan {
   id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
   userId    BigInt   @unique
-  product   Product  @relation(fields: [productId], references: [id])
-  productId BigInt   @unique
+  planId    BigInt   @unique
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
 }
 
 model Review {
   id           BigInt   @id @default(autoincrement())
-  product      Product  @relation(fields: [productId], references: [id])
   productId    BigInt   @unique
   rating       Int      @default(0)
-  title        String
-  descriptions String
+  title        String?  @db.VarChar(255)
+  descriptions String?  @db.VarChar(255)
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime @default(now()) @db.Timestamptz(6)
 }

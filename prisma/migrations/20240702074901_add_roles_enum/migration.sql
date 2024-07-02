@@ -1,2 +1,0 @@
--- CreateEnum
-CREATE TYPE "Roles" AS ENUM ('CUSTOMER', 'ADMIN', 'CUSTOMER_SERVICE', 'SALES');
