@@ -24,7 +24,7 @@ model User {
   passwordResetToken          String?   @db.VarChar(255)
   passwordResetTokenExpiresIn DateTime? @db.Timestamptz(6)
   lang                        String?   @db.VarChar(255)
-  roleId                      Role?
+  role                        Role?
   avatarURL                   String?   @db.VarChar(255)
   active                      Boolean?
   createdAt                   DateTime  @default(now()) @db.Timestamptz(6)
