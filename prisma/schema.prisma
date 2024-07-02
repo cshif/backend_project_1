@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model products {
+model product {
   id        BigInt   @id @default(autoincrement())
   name      String?  @db.VarChar(255)
   price     Decimal? @db.Decimal
@@ -15,7 +15,7 @@ model products {
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
 }
 
-model users {
+model user {
   id                          BigInt    @id @default(autoincrement())
   name                        String?   @db.VarChar(255)
   email                       String    @unique @db.VarChar(255)
@@ -25,17 +25,17 @@ model users {
   passwordResetTokenExpiresIn DateTime? @db.Timestamptz(6)
   lang                        String?   @db.VarChar(255)
   roleId                      Int?
-  role                        roles?    @relation(fields: [roleId], references: [id])
+  role                        role?     @relation(fields: [roleId], references: [id])
   avatarURL                   String?   @db.VarChar(255)
   active                      Boolean?
   createdAt                   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt                   DateTime  @default(now()) @db.Timestamptz(6)
 }
 
-model roles {
+model role {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
-  users     users[]
+  users     user[]
 }
