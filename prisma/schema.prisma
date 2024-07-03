@@ -16,19 +16,20 @@ model Product {
 }
 
 model User {
-  id                          BigInt    @id @default(autoincrement())
-  name                        String?   @db.VarChar(255)
-  email                       String    @unique @db.VarChar(255)
-  password                    String?   @db.VarChar(255)
-  passwordChangedAt           DateTime? @db.Timestamptz(6)
-  passwordResetToken          String?   @db.VarChar(255)
-  passwordResetTokenExpiresIn DateTime? @db.Timestamptz(6)
-  lang                        String?   @db.VarChar(255)
+  id                          BigInt     @id @default(autoincrement())
+  name                        String?    @db.VarChar(255)
+  email                       String     @unique @db.VarChar(255)
+  password                    String?    @db.VarChar(255)
+  passwordChangedAt           DateTime?  @db.Timestamptz(6)
+  passwordResetToken          String?    @db.VarChar(255)
+  passwordResetTokenExpiresIn DateTime?  @db.Timestamptz(6)
+  lang                        String?    @db.VarChar(255)
   role                        Role?
-  avatarURL                   String?   @db.VarChar(255)
+  avatarURL                   String?    @db.VarChar(255)
   active                      Boolean?
-  createdAt                   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt                   DateTime  @default(now()) @db.Timestamptz(6)
+  createdAt                   DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt                   DateTime   @default(now()) @db.Timestamptz(6)
+  userPlans                   UserPlan[]
 }
 
 enum Role {
@@ -52,6 +53,7 @@ model UserPlan {
   planId    BigInt   @unique
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Review {
