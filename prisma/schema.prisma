@@ -30,6 +30,7 @@ model User {
   createdAt                   DateTime   @default(now()) @db.Timestamptz(6)
   updatedAt                   DateTime   @default(now()) @db.Timestamptz(6)
   userPlans                   UserPlan[]
+  reviews                     Review[]
 }
 
 enum Role {
@@ -61,9 +62,11 @@ model UserPlan {
 model Review {
   id           BigInt   @id @default(autoincrement())
   productId    BigInt
+  userId       BigInt
   rating       Int      @default(0)
   title        String?  @db.VarChar(255)
   descriptions String?  @db.VarChar(255)
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime @default(now()) @db.Timestamptz(6)
+  user         User     @relation(fields: [userId], references: [id])
 }
