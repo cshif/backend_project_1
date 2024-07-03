@@ -40,20 +40,22 @@ enum Role {
 }
 
 model Plan {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   name       String
-  productIds BigInt[] @default([])
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt  DateTime @default(now()) @db.Timestamptz(6)
+  productIds BigInt[]  @default([])
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @db.Timestamptz(6)
+  userPlan   UserPlan?
 }
 
 model UserPlan {
   id        Int      @id @default(autoincrement())
   userId    BigInt
-  planId    BigInt
+  planId    Int      @unique
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
   user      User     @relation(fields: [userId], references: [id])
+  plan      Plan     @relation(fields: [planId], references: [id])
 }
 
 model Review {
