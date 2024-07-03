@@ -49,8 +49,8 @@ model Plan {
 
 model UserPlan {
   id        Int      @id @default(autoincrement())
-  userId    BigInt   @unique
-  planId    BigInt   @unique
+  userId    BigInt
+  planId    BigInt
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
   user      User     @relation(fields: [userId], references: [id])
@@ -58,7 +58,7 @@ model UserPlan {
 
 model Review {
   id           BigInt   @id @default(autoincrement())
-  productId    BigInt   @unique
+  productId    BigInt
   rating       Int      @default(0)
   title        String?  @db.VarChar(255)
   descriptions String?  @db.VarChar(255)
