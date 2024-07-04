@@ -18,21 +18,24 @@ model Product {
 }
 
 model User {
-  id                          BigInt     @id @default(autoincrement())
-  name                        String?    @db.VarChar(255)
-  email                       String     @unique @db.VarChar(255)
-  password                    String?    @db.VarChar(255)
-  passwordChangedAt           DateTime?  @db.Timestamptz(6)
-  passwordResetToken          String?    @db.VarChar(255)
-  passwordResetTokenExpiresIn DateTime?  @db.Timestamptz(6)
-  lang                        String?    @db.VarChar(255)
+  id                          BigInt      @id @default(autoincrement())
+  name                        String?     @db.VarChar(255)
+  email                       String      @unique @db.VarChar(255)
+  password                    String?     @db.VarChar(255)
+  passwordChangedAt           DateTime?   @db.Timestamptz(6)
+  passwordResetToken          String?     @db.VarChar(255)
+  passwordResetTokenExpiresIn DateTime?   @db.Timestamptz(6)
+  lang                        String?     @db.VarChar(255)
   role                        Role?
-  avatarURL                   String?    @db.VarChar(255)
+  avatarURL                   String?     @db.VarChar(255)
   active                      Boolean?
-  createdAt                   DateTime   @default(now()) @db.Timestamptz(6)
-  updatedAt                   DateTime   @default(now()) @db.Timestamptz(6)
+  currentDeviceId             BigInt      @unique
+  createdAt                   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt                   DateTime    @default(now()) @db.Timestamptz(6)
   userPlans                   UserPlan[]
   reviews                     Review[]
+  currentDevice               Device      @relation(fields: [currentDeviceId], references: [id])
+  userCoupon                  UserCoupon?
 }
 
 enum Role {
@@ -59,6 +62,7 @@ model UserPlan {
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
   user      User     @relation(fields: [userId], references: [id])
   plan      Plan     @relation(fields: [planId], references: [id])
+  order     Order?
 }
 
 model Review {
@@ -72,4 +76,72 @@ model Review {
   updatedAt    DateTime @default(now()) @db.Timestamptz(6)
   user         User     @relation(fields: [userId], references: [id])
   product      Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id         BigInt   @id @default(autoincrement())
+  userPlanId Int      @unique
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @db.Timestamptz(6)
+  userPlan   UserPlan @relation(fields: [userPlanId], references: [id])
+  receipt    Receipt?
+}
+
+model Receipt {
+  id        BigInt   @id @default(autoincrement())
+  orderId   BigInt   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @db.Timestamptz(6)
+  order     Order    @relation(fields: [orderId], references: [id])
+}
+
+model Device {
+  id          BigInt      @id @default(autoincrement())
+  name        String?     @db.VarChar(255)
+  type        DeviceType?
+  UID         String
+  lastUsedAt  DateTime
+  isConnected Boolean?
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime    @default(now()) @db.Timestamptz(6)
+  user        User?
+}
+
+enum DeviceType {
+  IOS
+  ANDROID
+  MAC
+  WINDOWS
+  LINUX
+}
+
+model Coupon {
+  id          BigInt      @id @default(autoincrement())
+  couponCode  String
+  issuedLimit Int
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime    @default(now()) @db.Timestamptz(6)
+  userCoupon  UserCoupon?
+}
+
+model UserCoupon {
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt    @unique
+  couponId  BigInt    @unique
+  redeemed  Boolean?
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @db.Timestamptz(6)
+  user      User      @relation(fields: [userId], references: [id])
+  coupon    Coupon    @relation(fields: [couponId], references: [id])
+  referral  Referral?
+}
+
+model Referral {
+  id           BigInt     @id @default(autoincrement())
+  referrerId   BigInt
+  refereeId    BigInt
+  userCouponId BigInt     @unique
+  createdAt    DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime   @default(now()) @db.Timestamptz(6)
+  userCoupon   UserCoupon @relation(fields: [userCouponId], references: [id])
 }
