@@ -36,6 +36,8 @@ model User {
   reviews                     Review[]
   currentDevice               Device      @relation(fields: [currentDeviceId], references: [id])
   userCoupon                  UserCoupon?
+  referrer                    Referral?   @relation("Referrer")
+  referee                     Referral?   @relation("Referee")
 }
 
 enum Role {
@@ -138,10 +140,14 @@ model UserCoupon {
 
 model Referral {
   id           BigInt     @id @default(autoincrement())
-  referrerId   BigInt
-  refereeId    BigInt
+  referrerId   BigInt     @unique
+  refereeId    BigInt     @unique
   userCouponId BigInt     @unique
   createdAt    DateTime   @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime   @default(now()) @db.Timestamptz(6)
+  referrer     User       @relation("Referrer", fields: [referrerId], references: [id])
+  referee      User       @relation("Referee", fields: [refereeId], references: [id])
   userCoupon   UserCoupon @relation(fields: [userCouponId], references: [id])
+
+  @@unique([referrerId, refereeId])
 }
