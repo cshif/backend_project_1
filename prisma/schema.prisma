@@ -29,12 +29,12 @@ model User {
   role                        Role?
   avatarURL                   String?     @db.VarChar(255)
   active                      Boolean?
-  currentDeviceId             BigInt      @unique
+  currentDeviceId             BigInt?     @unique
   createdAt                   DateTime    @default(now()) @db.Timestamptz(6)
   updatedAt                   DateTime    @default(now()) @db.Timestamptz(6)
   userPlans                   UserPlan[]
   reviews                     Review[]
-  currentDevice               Device      @relation(fields: [currentDeviceId], references: [id])
+  currentDevice               Device?     @relation(fields: [currentDeviceId], references: [id])
   userCoupon                  UserCoupon?
   referrer                    Referral?   @relation("Referrer")
   referee                     Referral?   @relation("Referee")
