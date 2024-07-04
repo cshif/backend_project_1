@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import DatabaseError from '../classes/DatabaseError.js';
 
 const sendErrorProd = (err, res) => {
   res.status(err.statusCode).json({
@@ -19,6 +20,12 @@ export default (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
+  if (err instanceof DatabaseError) {
+    return res.status(err.statusCode).json({
+      ...err,
+      stack: err.stack,
+    });
+  }
   if (process.env.NODE_ENV === 'development') {
     return sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
