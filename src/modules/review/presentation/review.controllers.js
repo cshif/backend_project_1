@@ -1,5 +1,5 @@
 import catchAsync from '../../../common/utils/catchAsync.js';
-import { AppError } from '../../../common/class/index.js';
+import { AppError } from '../../../common/classes/index.js';
 import * as db from '../../../config/db/index.js';
 
 export const createReview = catchAsync(async (req, res, next) => {

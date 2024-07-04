@@ -5,7 +5,7 @@ import * as db from '../../../config/db/index.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import catchAsync from '../../../common/utils/catchAsync.js';
-import { AppError } from '../../../common/class/index.js';
+import { AppError } from '../../../common/classes/index.js';
 import User from '../../user/domain/user.entity.js';
 import mailer from '../../../common/utils/mailer.js';
 
