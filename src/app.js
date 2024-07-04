@@ -5,6 +5,7 @@ import globalErrorHandler from './common/handler/globalErrorHandler.js';
 import authRouter from './modules/auth/presentation/auth.routes.js';
 import userRouter from './modules/user/presentation/user.routes.js';
 import productRouter from './modules/product/presentation/product.routes.js';
+import reviewRouter from './modules/review/presentation/review.routes.js';
 
 process.on('uncaughtException', (error) => {
   console.error('Uncaught exception, shutting down...', {
@@ -33,6 +34,7 @@ app.get('/', (req, res) => {
 app.use('/', authRouter);
 app.use('/users', userRouter);
 app.use('/products', productRouter);
+app.use('/reviews', reviewRouter);
 
 app.all('*', unhandledRoutesHandler);
 app.use(globalErrorHandler);
