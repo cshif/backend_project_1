@@ -30,7 +30,6 @@ export const getProduct = catchAsync(async (req, res, next) => {
 
 export const updateProduct = catchAsync(async (req, res, next) => {
   const { name, price } = req.body;
-  console.log(typeof price);
   const productId = Number(req.params.id);
 
   const { rows: products } = await db.query(
