@@ -22,7 +22,9 @@ export default (err, req, res, next) => {
 
   if (err instanceof DatabaseError) {
     return res.status(err.statusCode).json({
-      ...err,
+      status: err.status,
+      error: err,
+      message: err.message,
       stack: err.stack,
     });
   }

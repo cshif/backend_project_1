@@ -1,9 +1,10 @@
 import AppError from './AppError.js';
 
 class DatabaseError extends AppError {
-  constructor({ message, ...rest }) {
-    super();
-    this.message = `DatabaseError: ${message}`;
+  constructor({ message, code, ...rest }) {
+    super(message);
+    this.type = code.startsWith('P') ? 'ORMError' : 'DatabaseError';
+    this.code = code;
     this.details = rest;
   }
 }
