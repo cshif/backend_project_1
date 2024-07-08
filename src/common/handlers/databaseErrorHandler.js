@@ -1,5 +1,6 @@
 import DatabaseError from '../classes/DatabaseError.js';
 
 export default (err, req, res, next) => {
-  return next(new DatabaseError(err));
+  const isErrorCodeSQLSTATE = (err?.code ?? '').length === 5;
+  return isErrorCodeSQLSTATE ? next(new DatabaseError(err)) : next(err);
 };
