@@ -22,7 +22,7 @@ export const register = catchAsync(async (req, res, next) => {
 
   const hashedPassword = await bcrypt.hash(password, 12);
   const { rows } = await db.query(
-    `INSERT INTO users(email, password) VALUES ($1,$2) RETURNING id, email`,
+    `INSERT INTO "User"(email, password) VALUES ($1,$2) RETURNING id, email`,
     [email, hashedPassword]
   );
 
@@ -47,7 +47,7 @@ export const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Lack of required data', 404));
   }
 
-  const { rows } = await db.query(`SELECT * FROM users WHERE email = $1`, [
+  const { rows } = await db.query(`SELECT * FROM "User" WHERE email = $1`, [
     email,
   ]);
   const isPasswordCorrect = await User.comparePassword(
@@ -83,7 +83,7 @@ export const protectRoute = catchAsync(async (req, res, next) => {
     token,
     process.env.JWT_SECRET_KEY
   );
-  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+  const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);
   if (!users.length) {
@@ -119,7 +119,7 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
    * */
 
   const { rows: users } = await db.query(
-    `SELECT * FROM users WHERE email = $1`,
+    `SELECT * FROM "User" WHERE email = $1`,
     [req.body.email]
   );
   if (!users.length) {
@@ -130,7 +130,10 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
     users[0]
   ).passwordResetTokenInfo;
   await db.query(
-    `UPDATE users SET "passwordResetToken" = $1, "passwordResetTokenExpiresIn" = $2 WHERE email = $3`,
+    `UPDATE "User" 
+        SET "passwordResetToken"          = $1, 
+            "passwordResetTokenExpiresIn" = $2 
+        WHERE email = $3`,
     [hashedResetToken, resetTokenExpiresIn, users[0].email]
   );
 
@@ -144,7 +147,10 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
     res.status(200).send('reset password email sent successfully.');
   } catch (e) {
     await db.query(
-      `UPDATE users SET "passwordResetToken" = $1, "passwordResetTokenExpiresIn" = $2 WHERE email = $3`,
+      `UPDATE "User" 
+          SET "passwordResetToken"          = $1, 
+              "passwordResetTokenExpiresIn" = $2 
+          WHERE email = $3`,
       [undefined, undefined, users[0].email]
     );
     next(new AppError(e.message, 500));
@@ -165,7 +171,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
     .update(req.params.token)
     .digest('hex');
   const { rows: users } = await db.query(
-    `SELECT * FROM users WHERE "passwordResetToken" = $1 AND "passwordResetTokenExpiresIn" > NOW()`,
+    `SELECT * FROM "User" WHERE "passwordResetToken" = $1 AND "passwordResetTokenExpiresIn" > NOW()`,
     [hashedResetToken]
   );
 
@@ -176,7 +182,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   const newHashedPassword = await bcrypt.hash(password, 12);
   await db.query(
     `
-    UPDATE users 
+    UPDATE "User" 
     SET password                      = $1, 
         "passwordResetToken"          = $2, 
         "passwordResetTokenExpiresIn" = $3,
@@ -217,7 +223,7 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
     token,
     process.env.JWT_SECRET_KEY
   );
-  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+  const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);
   if (!users.length) {
@@ -235,7 +241,7 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
   const newHashedPassword = await bcrypt.hash(req.body.newPassword, 12);
   await db.query(
     `
-    UPDATE users 
+    UPDATE "User" 
     SET password                      = $1, 
         "passwordChangedAt"           = $2
     WHERE id = $3`,
@@ -266,23 +272,24 @@ export const updateMe = catchAsync(async (req, res, next) => {
     token,
     process.env.JWT_SECRET_KEY
   );
-  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+  const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);
   if (!users.length) {
     return next(new AppError("Can't find the user", 404));
   }
 
-  const { email, name, lang, avatarURL } = req.body;
+  const { email, name, lang, avatarURL, currentDeviceId } = req.body;
   const { rows } = await db.query(
-    `UPDATE users
-       SET email       = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE email END,
-           name        = CASE WHEN COALESCE($2) IS NOT NULL THEN $2 ELSE name END,
-           lang        = CASE WHEN COALESCE($3) IS NOT NULL THEN $3 ELSE lang END,
-           "avatarURL" = CASE WHEN COALESCE($4) IS NOT NULL THEN $4 ELSE "avatarURL" END
-       WHERE id = $5
-       RETURNING *`,
-    [email, name, lang, avatarURL, users[0].id]
+    `UPDATE "User"
+        SET email             = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE email END,
+            name              = CASE WHEN COALESCE($2) IS NOT NULL THEN $2 ELSE name END,
+            lang              = CASE WHEN COALESCE($3) IS NOT NULL THEN $3 ELSE lang END,
+            "avatarURL"       = CASE WHEN COALESCE($4) IS NOT NULL THEN $4 ELSE "avatarURL" END,
+            "currentDeviceId" = CASE WHEN COALESCE($5::BIGINT) IS NOT NULL THEN $5 ELSE "currentDeviceId" END
+        WHERE id = $6
+        RETURNING *`,
+    [email, name, lang, avatarURL, currentDeviceId, users[0].id]
   );
   res.json(rows[0]);
 });
@@ -303,7 +310,7 @@ export const deleteMe = catchAsync(async (req, res, next) => {
     token,
     process.env.JWT_SECRET_KEY
   );
-  const { rows: users } = await db.query(`SELECT * FROM users WHERE id = $1`, [
+  const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);
   if (!users.length) {
@@ -311,7 +318,7 @@ export const deleteMe = catchAsync(async (req, res, next) => {
   }
 
   const { rows } = await db.query(
-    `UPDATE users SET active = $1 WHERE id = $2`,
+    `UPDATE "User" SET active = $1 WHERE id = $2`,
     [false, users[0].id]
   );
   res.json(rows[0]);
