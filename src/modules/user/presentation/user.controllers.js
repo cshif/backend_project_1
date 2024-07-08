@@ -1,7 +1,6 @@
-import bcrypt from 'bcrypt';
 import * as db from '../../../config/db/index.js';
 import catchAsync from '../../../common/utils/catchAsync.js';
-import { AppError } from '../../../common/classes/index.js';
+import { AppError, Crypto } from '../../../common/classes/index.js';
 
 export const createUser = catchAsync(async (req, res, next) => {
   // 可以寫入 users 的條件：有 email，且 email 沒有使用過
@@ -13,7 +12,7 @@ export const createUser = catchAsync(async (req, res, next) => {
 
   // TODO validate password?
 
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const hashedPassword = await Crypto.hashPassword(password);
   const { rows } = await db.query(
     `INSERT INTO "User"(
       name, email, password, lang, role, "avatarURL", "currentDeviceId"
@@ -53,7 +52,7 @@ export const updateUser = catchAsync(async (req, res, next) => {
     return next(new AppError("Can't find the user", 404));
   }
 
-  const newHashedPassword = await bcrypt.hash(password, 12);
+  const newHashedPassword = await Crypto.hashPassword(password);
   const { rows } = await db.query(
     `UPDATE "User"
        SET name              = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE name END,

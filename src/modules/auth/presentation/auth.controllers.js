@@ -1,17 +1,17 @@
 import 'dotenv/config';
-import { promisify } from 'util';
-import crypto from 'crypto';
 import * as db from '../../../config/db/index.js';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import catchAsync from '../../../common/utils/catchAsync.js';
-import { AppError } from '../../../common/classes/index.js';
+import { AppError, Crypto } from '../../../common/classes/index.js';
 import User from '../../user/domain/user.entity.js';
 import mailer from '../../../common/utils/mailer.js';
 
 const getJWTTokenById = async (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  Crypto.getTokenById({
+    id,
+    secretKey: process.env.JWT_SECRET_KEY,
+    options: {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    },
   });
 
 const verifyAuthorizationTokenExist = catchAsync(async (req, res, next) => {
@@ -29,7 +29,7 @@ export const register = catchAsync(async (req, res, next) => {
     return next(new AppError('Lack of required data', 404));
   }
 
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const hashedPassword = await Crypto.hashPassword(password);
   const { rows } = await db.query(
     `INSERT INTO "User"(email, password) VALUES ($1,$2) RETURNING id, email`,
     [email, hashedPassword]
@@ -86,10 +86,10 @@ export const protectRoute = catchAsync(async (req, res, next) => {
 
   const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
-  const decodedToken = await promisify(jwt.verify)(
+  const decodedToken = await Crypto.getDecodedToken({
     token,
-    process.env.JWT_SECRET_KEY
-  );
+    secretKey: process.env.JWT_SECRET_KEY,
+  });
   const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);
@@ -173,10 +173,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
    * */
 
   const { password } = req.body;
-  const hashedResetToken = crypto
-    .createHash('sha256')
-    .update(req.params.token)
-    .digest('hex');
+  const hashedResetToken = Crypto.hashToken(req.params.token);
   const { rows: users } = await db.query(
     `SELECT * FROM "User" WHERE "passwordResetToken" = $1 AND "passwordResetTokenExpiresIn" > NOW()`,
     [hashedResetToken]
@@ -186,7 +183,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Invalid token', 400));
   }
 
-  const newHashedPassword = await bcrypt.hash(password, 12);
+  const newHashedPassword = await Crypto.hashPassword(password);
   await db.query(
     `
     UPDATE "User" 
@@ -224,10 +221,10 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
 
   const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
-  const decodedToken = await promisify(jwt.verify)(
+  const decodedToken = await Crypto.getDecodedToken({
     token,
-    process.env.JWT_SECRET_KEY
-  );
+    secretKey: process.env.JWT_SECRET_KEY,
+  });
   const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);
@@ -243,7 +240,7 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Wrong old password', 401));
   }
 
-  const newHashedPassword = await bcrypt.hash(req.body.newPassword, 12);
+  const newHashedPassword = await Crypto.hashPassword(req.body.newPassword);
   await db.query(
     `
     UPDATE "User" 
@@ -271,10 +268,10 @@ export const updateMe = catchAsync(async (req, res, next) => {
 
   const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
-  const decodedToken = await promisify(jwt.verify)(
+  const decodedToken = await Crypto.getDecodedToken({
     token,
-    process.env.JWT_SECRET_KEY
-  );
+    secretKey: process.env.JWT_SECRET_KEY,
+  });
   const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);
@@ -307,10 +304,10 @@ export const deleteMe = catchAsync(async (req, res, next) => {
 
   const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
-  const decodedToken = await promisify(jwt.verify)(
+  const decodedToken = await Crypto.getDecodedToken({
     token,
-    process.env.JWT_SECRET_KEY
-  );
+    secretKey: process.env.JWT_SECRET_KEY,
+  });
   const { rows: users } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
     decodedToken.id,
   ]);

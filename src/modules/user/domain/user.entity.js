@@ -1,5 +1,4 @@
-import crypto from 'crypto';
-import bcrypt from 'bcrypt';
+import { Crypto } from '../../../common/classes/index.js';
 import Role from '../../role/domain/role.entity.js';
 
 class User extends Role {
@@ -9,11 +8,8 @@ class User extends Role {
   }
 
   get passwordResetTokenInfo() {
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedResetToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
+    const resetToken = Crypto.generateRandomBytesToken();
+    const hashedResetToken = Crypto.hashToken(resetToken);
     const resetTokenExpiresInTs = Date.now() + 10 * 60 * 1000;
     const resetTokenExpiresInISO = new Date(
       resetTokenExpiresInTs
@@ -34,7 +30,7 @@ class User extends Role {
   }
 
   static async comparePassword(password, userPassword) {
-    return bcrypt.compare(password, userPassword);
+    return Crypto.comparePassword(password, userPassword);
   }
 }
 
