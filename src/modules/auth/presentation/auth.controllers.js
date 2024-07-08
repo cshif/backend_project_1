@@ -18,8 +18,6 @@ const verifyAuthorizationTokenExist = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer')) {
     return next(new AppError('Unauthorized', 401));
-  } else {
-    return next();
   }
 });
 
