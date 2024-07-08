@@ -14,6 +14,15 @@ const getJWTTokenById = async (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const verifyAuthorizationTokenExist = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    return next(new AppError('Unauthorized', 401));
+  } else {
+    return next();
+  }
+});
+
 export const register = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -73,11 +82,9 @@ export const protectRoute = catchAsync(async (req, res, next) => {
    * step 4. if user changed password after token issued
    * */
 
-  const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith('Bearer')) {
-    return next(new AppError('Unauthorized', 401));
-  }
+  await verifyAuthorizationTokenExist(req, res, next);
 
+  const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
   const decodedToken = await promisify(jwt.verify)(
     token,
@@ -213,11 +220,9 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
    * step 4. send new JWT token to user
    * */
 
-  const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith('Bearer')) {
-    return next(new AppError('Unauthorized', 401));
-  }
+  await verifyAuthorizationTokenExist(req, res, next);
 
+  const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
   const decodedToken = await promisify(jwt.verify)(
     token,
@@ -262,11 +267,9 @@ export const updateMe = catchAsync(async (req, res, next) => {
    * step 2. update columns
    * */
 
-  const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith('Bearer')) {
-    return next(new AppError('Unauthorized', 401));
-  }
+  await verifyAuthorizationTokenExist(req, res, next);
 
+  const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
   const decodedToken = await promisify(jwt.verify)(
     token,
@@ -300,11 +303,9 @@ export const deleteMe = catchAsync(async (req, res, next) => {
    * step 2. inactive user
    * */
 
-  const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith('Bearer')) {
-    return next(new AppError('Unauthorized', 401));
-  }
+  await verifyAuthorizationTokenExist(req, res, next);
 
+  const { authorization } = req.headers;
   const token = authorization.split(' ')[1];
   const decodedToken = await promisify(jwt.verify)(
     token,
