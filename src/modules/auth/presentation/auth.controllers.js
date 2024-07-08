@@ -9,7 +9,7 @@ import { AppError } from '../../../common/classes/index.js';
 import User from '../../user/domain/user.entity.js';
 import mailer from '../../../common/utils/mailer.js';
 
-const getTokenById = async (id) =>
+const getJWTTokenById = async (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -26,7 +26,7 @@ export const register = catchAsync(async (req, res, next) => {
     [email, hashedPassword]
   );
 
-  const token = await getTokenById(rows[0].id);
+  const token = await getJWTTokenById(rows[0].id);
 
   res.status(200).json({
     status: 'success',
@@ -58,7 +58,7 @@ export const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Wrong email or password', 401));
   }
 
-  const token = await getTokenById(rows[0].id);
+  const token = await getJWTTokenById(rows[0].id);
   res.status(200).json({
     status: 'success',
     token,
@@ -197,7 +197,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
     ]
   );
 
-  const token = await getTokenById(users[0].id);
+  const token = await getJWTTokenById(users[0].id);
 
   res.status(200).json({
     status: 'success',
@@ -248,7 +248,7 @@ export const updateMyPassword = catchAsync(async (req, res, next) => {
     [newHashedPassword, new Date(Date.now()).toISOString(), users[0].id]
   );
 
-  const newToken = await getTokenById(users[0].id);
+  const newToken = await getJWTTokenById(users[0].id);
 
   res.status(200).json({
     status: 'success',
