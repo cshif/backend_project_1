@@ -1,6 +1,9 @@
-import * as db from '../../../config/db/index.js';
+import { PrismaClient } from '@prisma/client';
 import { Crypto } from '../../../common/classes/index.js';
-import DatabaseError from '../../../common/classes/DatabaseError.js';
+import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
+import filterNullValues from '../../../common/utils/filterNullValues.js';
+
+const prisma = new PrismaClient();
 
 const UserService = {
   createUser: async (req, res, next) => {
@@ -9,75 +12,72 @@ const UserService = {
 
     try {
       const hashedPassword = await Crypto.hashPassword(password); // TODO shouldn't be here
-      const { rows } = await db.query(
-        `INSERT INTO "User"(
-      name, email, password, lang, role, "avatarURL", "currentDeviceId"
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7) 
-    RETURNING *`,
-        [name, email, hashedPassword, lang, role, avatarURL, currentDeviceId]
-      );
-      return rows;
+      const row = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          lang,
+          role,
+          avatarURL,
+          currentDeviceId,
+        },
+      });
+      return JSON.parse(JSON.stringify(row, bigIntReplacer));
     } catch (e) {
-      return next(new DatabaseError(e));
+      return next(e);
     }
   },
   getUsers: async (req, res, next) => {
     try {
-      const { rows } = await db.query(`SELECT * FROM "User"`);
-      return rows;
+      const rows = await prisma.user.findMany();
+      return JSON.parse(JSON.stringify(rows, bigIntReplacer));
     } catch (e) {
-      return next(new DatabaseError(e));
+      return next(e);
     }
   },
   getUserById: async (req, res, next) => {
     try {
-      const { rows } = await db.query(`SELECT * FROM "User" WHERE id = $1`, [
-        Number(req.params.id),
-      ]);
-      return rows;
+      const row = await prisma.user.findUniqueOrThrow({
+        where: { id: req.params.id },
+      });
+      return JSON.parse(JSON.stringify(row, bigIntReplacer));
     } catch (e) {
-      return next(new DatabaseError(e));
+      return next(e);
     }
   },
   updateUser: async (req, res, next) => {
     const { name, password, lang, role, avatarURL, currentDeviceId } = req.body;
 
     try {
-      const newHashedPassword = await Crypto.hashPassword(password); // TODO shouldn't be here
-      const { rows } = await db.query(
-        `UPDATE "User"
-        SET name              = CASE WHEN COALESCE($1) IS NOT NULL THEN $1 ELSE name END,
-            password          = CASE WHEN COALESCE($2) IS NOT NULL THEN $2 ELSE password END,
-            lang              = CASE WHEN COALESCE($3) IS NOT NULL THEN $3 ELSE lang END,
-            role              = CASE WHEN COALESCE($4::"Role") IS NOT NULL THEN $4 ELSE role END,
-            "avatarURL"       = CASE WHEN COALESCE($5) IS NOT NULL THEN $5 ELSE "avatarURL" END,
-            "currentDeviceId" = CASE WHEN COALESCE($6::BIGINT) IS NOT NULL THEN $6 ELSE "currentDeviceId" END
-        WHERE id = $7
-        RETURNING *`,
-        [
+      let newHashedPassword = null;
+      if (password) {
+        newHashedPassword = await Crypto.hashPassword(password); // TODO shouldn't be here
+      }
+      const row = await prisma.user.update({
+        where: { id: req.params.id },
+        data: filterNullValues({
           name,
-          newHashedPassword,
+          password: newHashedPassword,
           lang,
           role,
           avatarURL,
           currentDeviceId,
-          Number(req.params.id),
-        ]
-      );
-      return rows;
+        }),
+      });
+      return JSON.parse(JSON.stringify(row, bigIntReplacer));
     } catch (e) {
-      return next(new DatabaseError(e));
+      return next(e);
     }
   },
   deleteUser: async (req, res, next) => {
     try {
-      const { rows } = await db.query(
-        `DELETE FROM "User" WHERE id = $1 RETURNING *`,
-        [Number(req.params.id)]
-      );
-      return rows;
+      const row = await prisma.user.delete({
+        where: { id: req.params.id },
+      });
+      return JSON.parse(JSON.stringify(row, bigIntReplacer));
     } catch (e) {
-      return next(new DatabaseError(e));
+      return next(e);
     }
   },
 };

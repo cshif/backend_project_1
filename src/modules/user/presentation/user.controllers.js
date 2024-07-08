@@ -8,8 +8,8 @@ export const createUser = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(new AppError('Lack of required data', 404));
   }
-  const rows = await UserService.createUser(req, res, next);
-  return res.json(rows[0]);
+  const row = await UserService.createUser(req, res, next);
+  return res.json(row);
 });
 
 export const getUsers = catchAsync(async (req, res, next) => {
@@ -18,33 +18,27 @@ export const getUsers = catchAsync(async (req, res, next) => {
 });
 
 export const getUser = catchAsync(async (req, res, next) => {
-  const rows = await UserService.getUserById(req, res, next);
+  const row = await UserService.getUserById(req, res, next);
 
-  if (!rows.length) {
-    return next(new AppError("Can't find the user", 404));
-  }
+  if (!row) return next();
 
-  res.json(rows[0]);
+  res.json(row);
 });
 
 export const updateUser = catchAsync(async (req, res, next) => {
-  const users = await UserService.getUserById(req, res, next);
+  const row = await UserService.getUserById(req, res, next);
 
-  if (!users.length) {
-    return next(new AppError("Can't find the user", 404));
-  }
+  if (!row) return next();
 
-  const rows = await UserService.updateUser(req, res, next);
-  res.json(rows[0]);
+  const user = await UserService.updateUser(req, res, next);
+  res.json(user);
 });
 
 export const deleteUser = catchAsync(async (req, res, next) => {
-  const users = await UserService.getUserById(req, res, next);
+  const row = await UserService.getUserById(req, res, next);
 
-  if (!users.length) {
-    return next(new AppError("Can't find the user", 404));
-  }
+  if (!row) return next();
 
-  const rows = await UserService.deleteUser(req, res, next);
-  res.json(rows[0]);
+  const user = await UserService.deleteUser(req, res, next);
+  res.json(user);
 });
