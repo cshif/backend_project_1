@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../../prismaClient.js';
 import filterNullValues from '../../../common/utils/filterNullValues.js';
 import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
-
-const prisma = new PrismaClient();
 
 const ProductService = {
   createProduct: async (req, res, next) => {

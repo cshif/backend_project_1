@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../../prismaClient.js';
 import { Crypto } from '../../../common/classes/index.js';
 import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
 import filterNullValues from '../../../common/utils/filterNullValues.js';
-
-const prisma = new PrismaClient();
 
 const UserService = {
   createUser: async (req, res, next) => {
