@@ -1,6 +1,6 @@
 export default {
-  CUSTOMER: 'customer',
-  ADMIN: 'admin',
-  CUSTOMER_SERVICE: 'customer service',
-  SALES: 'sales',
+  CUSTOMER: 'CUSTOMER',
+  ADMIN: 'ADMIN',
+  CUSTOMER_SERVICE: 'CUSTOMER_SERVICE',
+  SALES: 'SALES',
 };
