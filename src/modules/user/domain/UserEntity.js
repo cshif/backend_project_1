@@ -9,7 +9,7 @@ class User extends Role {
 
   get passwordResetTokenInfo() {
     const resetToken = Crypto.generateRandomBytesToken();
-    const hashedResetToken = Crypto.hashToken(resetToken);
+    const hashedResetToken = Crypto.hashedToken(resetToken);
     const resetTokenExpiresInTs = Date.now() + 10 * 60 * 1000;
     const resetTokenExpiresInISO = new Date(
       resetTokenExpiresInTs

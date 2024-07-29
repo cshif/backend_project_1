@@ -3,8 +3,8 @@ import morgan from 'morgan';
 import unhandledRoutesHandler from './common/handlers/unhandledRoutesHandler.js';
 import databaseErrorHandler from './common/handlers/databaseErrorHandler.js';
 import globalErrorHandler from './common/handlers/globalErrorHandler.js';
-import authRouter from './modules/auth/presentation/auth.routes.js';
-import userRouter from './modules/user/presentation/user.routes.js';
+import authRouter from './modules/auth/presentation/AuthRoutes.js';
+import userRouter from './modules/user/presentation/UserRoutes.js';
 import productRouter from './modules/product/presentation/product.routes.js';
 import reviewRouter from './modules/review/presentation/review.routes.js';
 
