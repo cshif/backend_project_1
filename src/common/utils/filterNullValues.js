@@ -1,6 +1,6 @@
 const filterNullValues = (data) => {
   return Object.fromEntries(
-    Object.entries(data).filter(([, value]) => value !== null)
+    Object.entries(data).filter(([, value]) => value != null)
   );
 };
 
