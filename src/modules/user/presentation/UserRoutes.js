@@ -1,4 +1,4 @@
-import express from 'express';
+import Router from 'express-promise-router';
 import UserRepository from '../infrastructure/UserRepository.js';
 import UserService from '../application/UserService.js';
 import UserController from './UserController.js';
@@ -20,7 +20,7 @@ const authController = new AuthController({
   userService,
 });
 
-const router = express.Router();
+const router = Router();
 
 router
   .route('/')

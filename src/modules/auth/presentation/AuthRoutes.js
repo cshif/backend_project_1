@@ -1,4 +1,4 @@
-import express from 'express';
+import Router from 'express-promise-router';
 import AuthRepository from '../infrastructure/AuthRepository.js';
 import AuthService from '../application/AuthService.js';
 import AuthController from './AuthController.js';
@@ -17,7 +17,7 @@ const authController = new AuthController({
   userService,
 });
 
-const router = express.Router();
+const router = Router();
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);

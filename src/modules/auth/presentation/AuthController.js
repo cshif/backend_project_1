@@ -1,7 +1,6 @@
 import AuthEntity from '../domain/AuthEntity.js';
 import UserEntity from '../../user/domain/UserEntity.js';
 import { AppError, Crypto } from '../../../common/classes/index.js';
-import catchAsync from '../../../common/utils/catchAsync.js';
 import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
 import User from '../../user/domain/UserEntity.js';
 
@@ -22,7 +21,7 @@ class AuthController {
     }
   }
 
-  protectRoute = catchAsync(async (req, res, next) => {
+  protectRoute = async (req, res, next) => {
     /*
      * step 1. if token exist in header
      * step 2. verify token
@@ -50,7 +49,7 @@ class AuthController {
 
     req.user = user;
     next();
-  });
+  };
 
   restrictTo =
     (...roles) =>
@@ -63,7 +62,7 @@ class AuthController {
       next();
     };
 
-  register = catchAsync(async (req, res, next) => {
+  register = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return next(new AppError('Lack of required data', 404));
@@ -75,9 +74,9 @@ class AuthController {
       data: JSON.parse(JSON.stringify(user, bigIntReplacer)),
       token,
     });
-  });
+  };
 
-  login = catchAsync(async (req, res, next) => {
+  login = async (req, res, next) => {
     /*
      * step 1. if email and password exist
      * step 2. if user exist and password correct
@@ -103,9 +102,9 @@ class AuthController {
     res.json({
       token,
     });
-  });
+  };
 
-  forgetPassword = catchAsync(async (req, res, next) => {
+  forgetPassword = async (req, res, next) => {
     /*
      * step 1. get user based on email
      * step 2. generate random reset token
@@ -133,9 +132,9 @@ class AuthController {
       await this.#authService.resetPasswordResetToken(user.email);
       return next(new AppError(error.message, 500));
     }
-  });
+  };
 
-  resetPassword = catchAsync(async (req, res, next) => {
+  resetPassword = async (req, res, next) => {
     /*
      * step 1. get user based on token
      * step 2. if token didn't expire && user exist, set new password
@@ -159,9 +158,9 @@ class AuthController {
     res.json({
       token,
     });
-  });
+  };
 
-  updateMyPassword = catchAsync(async (req, res, next) => {
+  updateMyPassword = async (req, res, next) => {
     /*
      * step 1. get user
      * step 2. check if old password is correct
@@ -194,9 +193,9 @@ class AuthController {
     res.json({
       token: newToken,
     });
-  });
+  };
 
-  updateMe = catchAsync(async (req, res, next) => {
+  updateMe = async (req, res, next) => {
     /*
      * step 1. get user based on token
      * step 2. update columns
@@ -217,9 +216,9 @@ class AuthController {
     return res.json({
       data: JSON.parse(JSON.stringify(updatedUser, bigIntReplacer)),
     });
-  });
+  };
 
-  deleteMe = catchAsync(async (req, res, next) => {
+  deleteMe = async (req, res, next) => {
     /*
      * step 1. get user based on token
      * step 2. inactive user
@@ -240,7 +239,7 @@ class AuthController {
     return res.json({
       data: JSON.parse(JSON.stringify(deletedUser, bigIntReplacer)),
     });
-  });
+  };
 }
 
 export default AuthController;
