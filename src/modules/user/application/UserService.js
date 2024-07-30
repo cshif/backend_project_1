@@ -10,37 +10,19 @@ class UserService {
 
   async createUser(data) {
     const hashedPassword = await Crypto.hashPassword(data.password);
-    return this.#userRepository.create(
-      {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-        lang: data.lang,
-        role: data.role,
-        avatarURL: data.avatarURL,
-        currentDeviceId: data.currentDeviceId,
-      },
-      {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      }
-    );
+    return this.#userRepository.createUser({
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+      lang: data.lang,
+      role: data.role,
+      avatarURL: data.avatarURL,
+      currentDeviceId: data.currentDeviceId,
+    });
   }
 
   async getActiveUsers() {
-    return this.#userRepository.findMany({
-      where: {
-        OR: [{ active: { not: false } }, { name: null }],
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    });
+    return this.#userRepository.findActiveUsers();
   }
 
   async getUserById(id) {
@@ -75,44 +57,32 @@ class UserService {
   }
 
   async updateUser(data, id) {
-    return this.#userRepository.update(
+    return this.#userRepository.updateById(
+      id,
       filterNullValues({
         name: data.name,
         lang: data.lang,
         role: data.role,
         avatarURL: data.avatarURL,
         currentDeviceId: data.currentDeviceId,
-      }),
-      { id },
-      {
-        select: { id: true },
-      }
+      })
     );
   }
 
   async updateUserPassword(password, id) {
     const newHashedPassword = await Crypto.hashPassword(password);
-    return this.#userRepository.update(
-      {
-        password: newHashedPassword,
-        passwordResetToken: null,
-        passwordResetTokenExpiresIn: null,
-        passwordChangedAt: Day.toISOString(Date.now()),
-      },
-      { id }
-    );
+    return this.#userRepository.updateById(id, {
+      password: newHashedPassword,
+      passwordResetToken: null,
+      passwordResetTokenExpiresIn: null,
+      passwordChangedAt: Day.toISOString(Date.now()),
+    });
   }
 
   async deleteUser(id) {
-    return this.#userRepository.update(
-      {
-        active: false,
-      },
-      { id },
-      {
-        select: { email: true },
-      }
-    );
+    return this.#userRepository.update(id, {
+      active: false,
+    });
   }
 }
 

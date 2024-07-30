@@ -3,16 +3,27 @@ import prisma from '../../../prismaClient.js';
 class UserRepository {
   constructor() {}
 
-  async create(data, opts = {}) {
+  async createUser(data) {
     return prisma.user.create({
       data,
-      ...opts,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
     });
   }
 
-  async findMany(opts = {}) {
+  async findActiveUsers() {
     return prisma.user.findMany({
-      ...opts,
+      where: {
+        OR: [{ active: { not: false } }, { name: null }],
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
     });
   }
 
@@ -35,6 +46,26 @@ class UserRepository {
       data,
       where,
       ...opts,
+    });
+  }
+
+  async updateById(id, data) {
+    return prisma.user.update({
+      data,
+      where: { id },
+      select: {
+        id: true,
+      },
+    });
+  }
+
+  async updateByEmail(email, data) {
+    return prisma.user.update({
+      data,
+      where: { email },
+      select: {
+        email: true,
+      },
     });
   }
 

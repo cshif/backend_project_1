@@ -39,23 +39,17 @@ class AuthService {
 
   async updatePasswordResetToken(passwordResetTokenInfo, email) {
     const { hashedResetToken, resetTokenExpiresIn } = passwordResetTokenInfo;
-    return this.#userRepository.update(
-      {
-        passwordResetToken: hashedResetToken,
-        passwordResetTokenExpiresIn: resetTokenExpiresIn,
-      },
-      { email }
-    );
+    return this.#userRepository.updateByEmail(email, {
+      passwordResetToken: hashedResetToken,
+      passwordResetTokenExpiresIn: resetTokenExpiresIn,
+    });
   }
 
   async resetPasswordResetToken(email) {
-    return this.#userRepository.update(
-      {
-        passwordResetToken: null,
-        passwordResetTokenExpiresIn: null,
-      },
-      { email }
-    );
+    return this.#userRepository.updateByEmail(email, {
+      passwordResetToken: null,
+      passwordResetTokenExpiresIn: null,
+    });
   }
 
   async sendResetPasswordEmail({ protocol, host, passwordResetToken, email }) {
