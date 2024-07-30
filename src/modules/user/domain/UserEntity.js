@@ -7,21 +7,6 @@ class User extends Role {
     this.passwordChangedAt = passwordChangedAt;
   }
 
-  get passwordResetTokenInfo() {
-    const resetToken = Crypto.generateRandomBytesToken();
-    const hashedResetToken = Crypto.hashedToken(resetToken);
-    const resetTokenExpiresInTs = Date.now() + 10 * 60 * 1000;
-    const resetTokenExpiresInISO = new Date(
-      resetTokenExpiresInTs
-    ).toISOString();
-
-    return {
-      resetToken,
-      resetTokenExpiresIn: resetTokenExpiresInISO,
-      hashedResetToken,
-    };
-  }
-
   isChangedPasswordAfterTokenIssued(tokenIssuedAt) {
     const unixFormatPasswordChangedAt = Math.floor(
       new Date(this.passwordChangedAt) / 1000
