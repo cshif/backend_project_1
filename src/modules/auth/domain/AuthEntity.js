@@ -6,13 +6,6 @@ class AuthEntity {
     this.user = user;
   }
 
-  isChangedPasswordAfterTokenIssued(tokenIssuedAt) {
-    const unixFormatPasswordChangedAt = Math.floor(
-      new Date(this.user.passwordChangedAt) / 1000
-    );
-    return unixFormatPasswordChangedAt > tokenIssuedAt;
-  }
-
   static getPasswordResetTokenInfo() {
     const resetToken = Crypto.generateRandomBytesToken();
     const hashedResetToken = Crypto.hashedToken(resetToken);
