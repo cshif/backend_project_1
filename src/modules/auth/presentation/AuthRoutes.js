@@ -5,17 +5,21 @@ import AuthController from './AuthController.js';
 import UserRepository from '../../user/infrastructure/UserRepository.js';
 import UserService from '../../user/application/UserService.js';
 import verifyAuthorizationTokenExist from '../../../common/middlewares/verifyAuthorizationTokenExist.js';
+import MeService from '../application/MeService.js';
 
 const authRepository = new AuthRepository();
 const userRepository = new UserRepository();
+const userService = new UserService({ userRepository });
 const authService = new AuthService({
   authRepository,
   userRepository,
+  userService,
 });
-const userService = new UserService({ userRepository });
+const meService = new MeService({ userService });
 const authController = new AuthController({
   authService,
   userService,
+  meService,
 });
 
 const router = Router();

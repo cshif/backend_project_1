@@ -5,6 +5,7 @@ import UserController from './UserController.js';
 import AuthRepository from '../../auth/infrastructure/AuthRepository.js';
 import AuthService from '../../auth/application/AuthService.js';
 import AuthController from '../../auth/presentation/AuthController.js';
+import MeService from '../../auth/application/MeService.js';
 import roles from '../../../constants/roles.js';
 import verifyAuthorizationTokenExist from '../../../common/middlewares/verifyAuthorizationTokenExist.js';
 import restrictTo from '../../../common/middlewares/restrictTo.js';
@@ -16,10 +17,12 @@ const authService = new AuthService({
   authRepository,
   userRepository,
 });
+const meService = new MeService({ userService });
 const userController = new UserController({ userService });
 const authController = new AuthController({
   authService,
   userService,
+  meService,
 });
 
 const router = Router();

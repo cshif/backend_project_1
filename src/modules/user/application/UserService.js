@@ -65,6 +65,15 @@ class UserService {
     });
   }
 
+  async getUserByAuthorizationToken(authorization) {
+    const token = authorization.split(' ')[1];
+    const decodedToken = await Crypto.getDecodedToken({
+      token,
+      secretKey: process.env.JWT_SECRET_KEY,
+    });
+    return this.getUserById(decodedToken.id);
+  }
+
   async updateUser(data, id) {
     return this.#userRepository.update(
       filterNullValues({
