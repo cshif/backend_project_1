@@ -4,6 +4,7 @@ import AuthService from '../application/AuthService.js';
 import AuthController from './AuthController.js';
 import UserRepository from '../../user/infrastructure/UserRepository.js';
 import UserService from '../../user/application/UserService.js';
+import verifyAuthorizationTokenExist from '../../../common/middlewares/verifyAuthorizationTokenExist.js';
 
 const authRepository = new AuthRepository();
 const userRepository = new UserRepository();
@@ -23,9 +24,14 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/forget-password', authController.forgetPassword);
 router.patch('/reset-password/:token', authController.resetPassword);
-router.patch('/update-password', authController.updateMyPassword);
+router.patch(
+  '/update-password',
+  verifyAuthorizationTokenExist,
+  authController.updateMyPassword
+);
 router
   .route('/me')
+  .all(verifyAuthorizationTokenExist)
   .patch(authController.updateMe)
   .delete(authController.deleteMe);
 

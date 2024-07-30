@@ -15,12 +15,6 @@ class AuthController {
     this.#userService = userService;
   }
 
-  #verifyAuthorizationTokenExist(authorization, next) {
-    if (!authorization || !authorization.startsWith('Bearer')) {
-      return next(new AppError('Unauthorized', 401));
-    }
-  }
-
   protectRoute = async (req, res, next) => {
     /*
      * step 1. if token exist in header
@@ -28,8 +22,6 @@ class AuthController {
      * step 3. if user exist
      * step 4. if user changed password after token issued
      * */
-
-    this.#verifyAuthorizationTokenExist(req.headers.authorization, next);
 
     const { authorization } = req.headers;
     const token = authorization.split(' ')[1];
@@ -50,17 +42,6 @@ class AuthController {
     req.user = user;
     next();
   };
-
-  restrictTo =
-    (...roles) =>
-    (req, res, next) => {
-      console.log({ roles, role: req.user.role });
-      if (!roles.includes(req.user.role)) {
-        return next(new AppError('Forbidden', 403));
-      }
-
-      next();
-    };
 
   register = async (req, res, next) => {
     const { email, password } = req.body;
@@ -168,8 +149,6 @@ class AuthController {
      * step 4. send new JWT token to user
      * */
 
-    this.#verifyAuthorizationTokenExist(req.headers.authorization, next);
-
     const { authorization } = req.headers;
     const token = authorization.split(' ')[1];
     const decodedToken = await Crypto.getDecodedToken({
@@ -201,8 +180,6 @@ class AuthController {
      * step 2. update columns
      * */
 
-    this.#verifyAuthorizationTokenExist(req.headers.authorization, next);
-
     const { authorization } = req.headers;
     const token = authorization.split(' ')[1];
     const decodedToken = await Crypto.getDecodedToken({
@@ -223,8 +200,6 @@ class AuthController {
      * step 1. get user based on token
      * step 2. inactive user
      * */
-
-    this.#verifyAuthorizationTokenExist(req.headers.authorization, next);
 
     const { authorization } = req.headers;
     const token = authorization.split(' ')[1];

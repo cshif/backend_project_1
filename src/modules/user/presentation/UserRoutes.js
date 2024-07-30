@@ -6,6 +6,8 @@ import AuthRepository from '../../auth/infrastructure/AuthRepository.js';
 import AuthService from '../../auth/application/AuthService.js';
 import AuthController from '../../auth/presentation/AuthController.js';
 import roles from '../../../constants/roles.js';
+import verifyAuthorizationTokenExist from '../../../common/middlewares/verifyAuthorizationTokenExist.js';
+import restrictTo from '../../../common/middlewares/restrictTo.js';
 
 const userRepository = new UserRepository();
 const authRepository = new AuthRepository();
@@ -24,12 +26,12 @@ const router = Router();
 
 router
   .route('/')
-  .all(authController.protectRoute)
-  .post(authController.restrictTo(roles.ADMIN), userController.createUser)
+  .all(verifyAuthorizationTokenExist, authController.protectRoute)
+  .post(restrictTo(roles.ADMIN), userController.createUser)
   .get(userController.getUsers);
 router
   .route('/:id')
-  .all(authController.protectRoute)
+  .all(verifyAuthorizationTokenExist, authController.protectRoute)
   .get(userController.getUser)
   .put(userController.updateUser)
   .delete(userController.deleteUser);
