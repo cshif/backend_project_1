@@ -3,9 +3,9 @@ import util from 'node:util';
 export default (...content) => {
   content.forEach((i) => {
     if (typeof i === 'string') {
-      console.log(i);
+      console.error(i);
     } else {
-      console.log(util.inspect(i, false, null, true));
+      console.error(util.inspect(i, false, null, true));
     }
   });
 };
