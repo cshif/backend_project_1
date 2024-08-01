@@ -6,6 +6,7 @@ import AuthRepository from '../../auth/infrastructure/AuthRepository.js';
 import AuthService from '../../auth/application/AuthService.js';
 import AuthController from '../../auth/presentation/AuthController.js';
 import MeService from '../../auth/application/MeService.js';
+import * as userValidator from './validator/index.js';
 import roles from '../../../constants/roles.js';
 import verifyAuthorizationTokenExist from '../../../common/middlewares/verifyAuthorizationTokenExist.js';
 import restrictTo from '../../../common/middlewares/restrictTo.js';
@@ -30,7 +31,11 @@ const router = Router();
 router
   .route('/')
   .all(verifyAuthorizationTokenExist, authController.protectRoute)
-  .post(restrictTo(roles.ADMIN), userController.createUser)
+  .post(
+    restrictTo(roles.ADMIN),
+    userValidator.createUser.createUserValidatorByExpressValidator,
+    userController.createUser
+  )
   .get(userController.getUsers);
 router
   .route('/:id')
