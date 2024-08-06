@@ -1,4 +1,4 @@
-import prisma from '../../../prismaClient.js';
+import prisma from '../../../../prisma/client.js';
 import filterNullValues from '../../../common/utils/filterNullValues.js';
 import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
 

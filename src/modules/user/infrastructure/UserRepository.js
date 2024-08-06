@@ -1,6 +1,6 @@
 /** @typedef {import('../domain/UserEntity.js').default} User */
 
-import prisma from '../../../prismaClient.js';
+import prisma from '../../../../prisma/client.js';
 
 class UserRepository {
   constructor() {}

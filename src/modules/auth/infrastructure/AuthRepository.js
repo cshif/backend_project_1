@@ -1,4 +1,4 @@
-import prisma from '../../../prismaClient.js';
+import prisma from '../../../../prisma/client.js';
 
 class AuthRepository {
   constructor() {}
