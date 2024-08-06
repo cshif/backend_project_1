@@ -1,11 +1,23 @@
+/** @typedef {import('../../user/domain/UserEntity.js').default} User */
+
 import 'dotenv/config';
 import { Crypto } from '../../../common/classes/index.js';
 
 class AuthEntity {
+  /**
+   * @param {User} user
+   */
   constructor(user) {
     this.user = user;
   }
 
+  /**
+   * @returns {{
+   *   resetToken: string
+   *   resetTokenExpiresIn: string
+   *   hashedResetToken: string
+   * }}
+   */
   static getPasswordResetTokenInfo() {
     const resetToken = Crypto.generateRandomBytesToken();
     const hashedResetToken = Crypto.hashedToken(resetToken);
@@ -21,6 +33,10 @@ class AuthEntity {
     };
   }
 
+  /**
+   * @param {number} id
+   * @returns {Promise<string>}
+   */
   static async getTokenById(id) {
     return Crypto.getTokenById({
       id,

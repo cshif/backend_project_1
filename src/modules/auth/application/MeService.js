@@ -1,13 +1,22 @@
+/** @typedef {import('../../user/application/UserService.js').default} UserService */
+
 import UserEntity from '../../user/domain/UserEntity.js';
 import AuthEntity from '../domain/AuthEntity.js';
 import { AppError } from '../../../common/classes/index.js';
 
 class MeService {
+  /** @type {UserService} */
   #userService;
+
   constructor({ userService }) {
     this.#userService = userService;
   }
 
+  /**
+   * @param authorization {string}
+   * @param newPassword {string}
+   * @returns {Promise<AppError|{ token: string }>}
+   */
   async updateMyPassword(authorization, newPassword) {
     const user =
       await this.#userService.getUserByAuthorizationToken(authorization);
@@ -26,6 +35,11 @@ class MeService {
     return { token: newToken };
   }
 
+  /**
+   * @param {string} authorization
+   * @param {Object} data
+   * @returns {Promise<User>}
+   */
   async updateMe(authorization, data) {
     const user =
       await this.#userService.getUserByAuthorizationToken(authorization);
@@ -33,6 +47,10 @@ class MeService {
     return this.#userService.updateUser(data, user.id);
   }
 
+  /**
+   * @param {string} authorization
+   * @returns {Promise<User>}
+   */
   async deleteMe(authorization) {
     const user =
       await this.#userService.getUserByAuthorizationToken(authorization);

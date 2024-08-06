@@ -1,12 +1,17 @@
 import { Crypto } from '../../../common/classes/index.js';
-import Role from '../../role/domain/role.entity.js';
 
-class User extends Role {
-  constructor({ passwordChangedAt, roleId }) {
-    super({ roleId });
-    this.passwordChangedAt = passwordChangedAt;
+class User {
+  /**
+   * @param {Object} props
+   */
+  constructor(props) {
+    this.passwordChangedAt = props.passwordChangedAt;
   }
 
+  /**
+   * @param {Date} tokenIssuedAt
+   * @returns {boolean}
+   */
   isChangedPasswordAfterTokenIssued(tokenIssuedAt) {
     const unixFormatPasswordChangedAt = Math.floor(
       new Date(this.passwordChangedAt) / 1000
@@ -14,6 +19,11 @@ class User extends Role {
     return unixFormatPasswordChangedAt > tokenIssuedAt;
   }
 
+  /**
+   * @param {string} password
+   * @param {string} userPassword
+   * @returns {Promise<boolean>}
+   */
   static async comparePassword(password, userPassword) {
     return Crypto.comparePassword(password, userPassword);
   }

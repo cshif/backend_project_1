@@ -1,18 +1,31 @@
+/** @typedef {import('../infrastructure/AuthRepository.js').default} AuthRepository */
+/** @typedef {import('../../user/infrastructure/UserRepository.js').default} UserRepository */
+/** @typedef {import('../../user/application/UserService.js').default} UserService */
+/** @typedef {import('../../user/domain/UserEntity.js').default} User */
+
 import AuthEntity from '../domain/AuthEntity.js';
 import UserEntity from '../../user/domain/UserEntity.js';
 import { AppError } from '../../../common/classes/index.js';
 import mailer from '../../../common/utils/mailer.js';
 
 class AuthService {
+  /** @type {AuthRepository} */
   #authRepository;
+  /** @type {UserRepository} */
   #userRepository;
+  /** @type {UserService} */
   #userService;
+
   constructor({ authRepository, userRepository, userService }) {
     this.#authRepository = authRepository;
     this.#userRepository = userRepository;
     this.#userService = userService;
   }
 
+  /**
+   * @param {Object} data
+   * @returns {Promise<{user: User, token: string}>}
+   */
   async registerUser(data) {
     const user = await this.#userService.createUser(data);
     const token = await AuthEntity.getTokenById(Number(BigInt(user.id)));
@@ -22,6 +35,11 @@ class AuthService {
     };
   }
 
+  /**
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<AppError|{ token: string }>}
+   */
   async loginUser(email, password) {
     const user = await this.#userService.getUserByEmail(email);
 
@@ -37,6 +55,11 @@ class AuthService {
     return { token };
   }
 
+  /**
+   * @param {Object} passwordResetTokenInfo
+   * @param {string} email
+   * @returns {Promise<User>}
+   */
   async updatePasswordResetToken(passwordResetTokenInfo, email) {
     const { hashedResetToken, resetTokenExpiresIn } = passwordResetTokenInfo;
     return this.#userRepository.updateByEmail(email, {
@@ -45,6 +68,10 @@ class AuthService {
     });
   }
 
+  /**
+   * @param {string} email
+   * @returns {Promise<User>}
+   */
   async resetPasswordResetToken(email) {
     return this.#userRepository.updateByEmail(email, {
       passwordResetToken: null,
@@ -52,6 +79,14 @@ class AuthService {
     });
   }
 
+  /**
+   * @param {Object} arg
+   * @param {string} arg.protocol
+   * @param {string} arg.host
+   * @param {string} arg.passwordResetToken
+   * @param {string} arg.email
+   * @returns {Promise<void>}
+   */
   async sendResetPasswordEmail({ protocol, host, passwordResetToken, email }) {
     const resetURL = `${protocol}://${host}/reset-password/${
       passwordResetToken
@@ -63,6 +98,13 @@ class AuthService {
     });
   }
 
+  /**
+   * @param {Object} arg
+   * @param {string} arg.email
+   * @param {string} arg.protocol
+   * @param {string} arg.host
+   * @returns {Promise<AppError|true>}
+   */
   async forgetUserPassword({ email, protocol, host }) {
     /*
      * step 1. get user based on email
@@ -92,6 +134,11 @@ class AuthService {
     }
   }
 
+  /**
+   * @param {string} passwordResetToken
+   * @param {string} newPassword
+   * @returns {Promise<{ token: string }>}
+   */
   async resetUserPassword(passwordResetToken, newPassword) {
     const user =
       await this.#userService.getUserByPasswordResetToken(passwordResetToken);

@@ -1,12 +1,20 @@
+/** @typedef {import('../../auth/application/AuthService.js').default} AuthService */
+/** @typedef {import('../../user/application/UserService.js').default} UserService */
+/** @typedef {import('../application/MeService.js').default} MeService */
+
 import 'dotenv/config';
 import User from '../../user/domain/UserEntity.js';
 import { AppError, Crypto } from '../../../common/classes/index.js';
 import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
 
 class AuthController {
+  /** @type {AuthService} */
   #authService;
+  /** @type {UserService} */
   #userService;
+  /** @type {MeService} */
   #meService;
+
   constructor({ authService, userService, meService }) {
     if (!authService || !userService || !meService) {
       throw new Error('AuthService and UserService and MeService is required');

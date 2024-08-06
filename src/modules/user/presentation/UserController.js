@@ -1,8 +1,12 @@
+/** @typedef {import('../application/UserService.js').default} UserService */
+
 import { AppError } from '../../../common/classes/index.js';
 import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
 
 class UserController {
+  /** @type {UserService} */
   #userService;
+
   constructor({ userService }) {
     if (!userService) {
       throw new Error('UserService is required');
