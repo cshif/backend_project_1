@@ -22,6 +22,9 @@ class UserController {
     }
 
     const user = await this.#userService.createUser(req.body);
+    if (user instanceof AppError) {
+      return next(user);
+    }
     return ok(res, user);
   };
 

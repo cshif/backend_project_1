@@ -24,10 +24,13 @@ class AuthService {
 
   /**
    * @param {Object} data
-   * @returns {Promise<{user: User, token: string}>}
+   * @returns {Promise<AppError|{user: User, token: string}>}
    */
   async registerUser(data) {
     const user = await this.#userService.createUser(data);
+    if (user instanceof AppError) {
+      return user;
+    }
     const token = await AuthEntity.getTokenById(Number(BigInt(user.id)));
     return {
       user,

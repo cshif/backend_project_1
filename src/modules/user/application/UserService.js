@@ -2,7 +2,7 @@
 /** @typedef {import('../domain/UserEntity.js').default} User */
 
 import 'dotenv/config';
-import { Crypto, Day } from '../../../common/classes/index.js';
+import { Crypto, Day, AppError } from '../../../common/classes/index.js';
 import filterNullValues from '../../../common/utils/filterNullValues.js';
 
 class UserService {
@@ -15,9 +15,14 @@ class UserService {
 
   /**
    * @param {Object} data
-   * @returns {Promise<User>}
+   * @returns {Promise<AppError|User>}
    */
   async createUser(data) {
+    const duplicatedUser = await this.getUserByEmail(data.email);
+    if (duplicatedUser) {
+      return new AppError('This email is already taken', 409);
+    }
+
     const hashedPassword = await Crypto.hashPassword(data.password);
     return this.#userRepository.createUser({
       name: data.name,

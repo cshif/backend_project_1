@@ -58,8 +58,11 @@ class AuthController {
       return next(new AppError('Lack of required data', 404));
     }
 
-    const { user, token } = await this.#authService.registerUser(req.body);
-    return ok(res, user, { token });
+    const result = await this.#authService.registerUser(req.body);
+    if (result instanceof AppError) {
+      return next(result);
+    }
+    return ok(res, result.user, { token: result.token });
   };
 
   login = async (req, res, next) => {
