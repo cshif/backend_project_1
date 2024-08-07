@@ -5,7 +5,7 @@
 import 'dotenv/config';
 import User from '../../user/domain/UserEntity.js';
 import { AppError, Crypto } from '../../../common/classes/index.js';
-import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
+import { ok } from '../../../common/utils/responses.js';
 
 class AuthController {
   /** @type {AuthService} */
@@ -47,6 +47,7 @@ class AuthController {
       return next(new AppError('Unauthorized', 401));
     }
 
+    // TODO
     req.user = user;
     next();
   };
@@ -58,10 +59,7 @@ class AuthController {
     }
 
     const { user, token } = await this.#authService.registerUser(req.body);
-    return res.json({
-      data: JSON.parse(JSON.stringify(user, bigIntReplacer)),
-      token,
-    });
+    return ok(res, user, { token });
   };
 
   login = async (req, res, next) => {
@@ -146,9 +144,7 @@ class AuthController {
       req.headers.authorization,
       req.body
     );
-    return res.json({
-      data: JSON.parse(JSON.stringify(updatedUser, bigIntReplacer)),
-    });
+    return ok(res, updatedUser);
   };
 
   deleteMe = async (req, res, next) => {
@@ -160,9 +156,7 @@ class AuthController {
     const deletedUser = await this.#meService.deleteMe(
       req.headers.authorization
     );
-    return res.json({
-      data: JSON.parse(JSON.stringify(deletedUser, bigIntReplacer)),
-    });
+    return ok(res, deletedUser);
   };
 }
 

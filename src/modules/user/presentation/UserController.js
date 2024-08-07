@@ -1,7 +1,7 @@
 /** @typedef {import('../application/UserService.js').default} UserService */
 
 import { AppError } from '../../../common/classes/index.js';
-import bigIntReplacer from '../../../common/utils/bigIntReplacer.js';
+import { ok } from '../../../common/utils/responses.js';
 
 class UserController {
   /** @type {UserService} */
@@ -22,25 +22,19 @@ class UserController {
     }
 
     const user = await this.#userService.createUser(req.body);
-    return res.json({
-      data: JSON.parse(JSON.stringify(user, bigIntReplacer)),
-    });
+    return ok(res, user);
   };
 
   getUsers = async (req, res, next) => {
     const users = await this.#userService.getActiveUsers();
-    return res.json({
-      data: JSON.parse(JSON.stringify(users, bigIntReplacer)),
-    });
+    return ok(res, users);
   };
 
   getUser = async (req, res, next) => {
     const user = await this.#userService.getUserById(req.params.id);
     if (!user) return next();
 
-    return res.json({
-      data: JSON.parse(JSON.stringify(user, bigIntReplacer)),
-    });
+    return ok(res, user);
   };
 
   updateUser = async (req, res, next) => {
@@ -49,9 +43,7 @@ class UserController {
     if (!user) return next();
 
     const updatedUser = await this.#userService.updateUser(req.body, userId);
-    return res.json({
-      data: JSON.parse(JSON.stringify(updatedUser, bigIntReplacer)),
-    });
+    return ok(res, updatedUser);
   };
 
   deleteUser = async (req, res, next) => {
@@ -60,9 +52,7 @@ class UserController {
     if (!user) return next();
 
     const deletedUser = await this.#userService.deleteUser(userId);
-    return res.json({
-      data: JSON.parse(JSON.stringify(deletedUser, bigIntReplacer)),
-    });
+    return ok(res, deletedUser);
   };
 }
 
