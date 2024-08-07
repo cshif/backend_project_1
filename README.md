@@ -21,7 +21,7 @@ git clone git@github.com:cshif/backend_project_1.git
 
 2. Copy and fill in the environment variables
 ```
-cp .env.example .env
+cp .env.sample .env
 ```
 
 3. Install the dependencies
