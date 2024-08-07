@@ -50,10 +50,10 @@ const createUserValidatorByExpressValidator = async (req, res, next) => {
 
   if (errors.filter((error) => error.type === 'unknown_fields').length) {
     inspect(errors);
-    return next(new AppError('do not send unknown fields', 401));
+    return next(AppError.unauthorized('do not send unknown fields'));
   } else if (errors.filter((error) => error.type !== 'unknown_fields').length) {
     inspect(errors);
-    return next(new AppError('the error messages', 401));
+    return next(AppError.unauthorized());
   }
   return next();
 };
@@ -93,7 +93,7 @@ const createUserValidatorByJoi = async (req, res, next) => {
     next();
   } catch (error) {
     inspect(error);
-    return next(new AppError('the error messages', 401));
+    return next(AppError.unauthorized());
   }
 };
 

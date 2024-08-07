@@ -51,7 +51,7 @@ class AuthService {
       user.password
     );
     if (!isPasswordCorrect) {
-      return new AppError('Wrong password', 401);
+      return AppError.unauthorized('Wrong password');
     }
 
     const token = await AuthEntity.getTokenById(Number(BigInt(user.id)));
@@ -133,7 +133,7 @@ class AuthService {
       return true;
     } catch (error) {
       await this.resetPasswordResetToken(user.email);
-      return new AppError(error.message, 500);
+      return AppError.internalServerError(error.message);
     }
   }
 

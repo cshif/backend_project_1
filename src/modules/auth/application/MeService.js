@@ -26,7 +26,7 @@ class MeService {
       user.password
     );
     if (!isOldPasswordCorrect) {
-      return new AppError('Wrong old password', 401);
+      return AppError.unauthorized('Wrong old password');
     }
 
     await this.#userService.updateUserPassword(newPassword, user.id);

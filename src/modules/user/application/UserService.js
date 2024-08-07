@@ -20,7 +20,7 @@ class UserService {
   async createUser(data) {
     const duplicatedUser = await this.getUserByEmail(data.email);
     if (duplicatedUser) {
-      return new AppError('This email is already taken', 409);
+      return AppError.conflict('This email is already taken');
     }
 
     const hashedPassword = await Crypto.hashPassword(data.password);
