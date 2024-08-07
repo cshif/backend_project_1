@@ -5,7 +5,7 @@
 import 'dotenv/config';
 import User from '../../user/domain/UserEntity.js';
 import { AppError, Crypto } from '../../../common/classes/index.js';
-import { ok } from '../../../common/utils/responses.js';
+import { ok, notFound, unauthorized } from '../../../common/utils/responses.js';
 
 class AuthController {
   /** @type {AuthService} */
@@ -44,7 +44,7 @@ class AuthController {
       user
     ).isChangedPasswordAfterTokenIssued(decodedToken.iat);
     if (isUserChangedPasswordAfterTokenIssued) {
-      return next(new AppError('Unauthorized', 401));
+      return unauthorized(res);
     }
 
     // TODO
@@ -55,7 +55,7 @@ class AuthController {
   register = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
-      return next(new AppError('Lack of required data', 404));
+      return notFound(res, 'Lack of required data');
     }
 
     const result = await this.#authService.registerUser(req.body);
@@ -74,7 +74,7 @@ class AuthController {
 
     const { email, password } = req.body;
     if (!email || !password) {
-      return next(new AppError('Lack of required data', 404));
+      return notFound(res, 'Lack of required data');
     }
 
     const result = await this.#authService.loginUser(email, password);
@@ -110,7 +110,7 @@ class AuthController {
 
     const { password } = req.body;
     if (!password) {
-      return next(new AppError('Lack of required data', 404));
+      return notFound(res, 'Lack of required data');
     }
 
     const { token } = await this.#authService.resetUserPassword(

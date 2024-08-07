@@ -1,7 +1,7 @@
 /** @typedef {import('../application/UserService.js').default} UserService */
 
 import { AppError } from '../../../common/classes/index.js';
-import { ok } from '../../../common/utils/responses.js';
+import { ok, notFound } from '../../../common/utils/responses.js';
 
 class UserController {
   /** @type {UserService} */
@@ -18,7 +18,7 @@ class UserController {
     // 可以寫入 users 的條件：有 email，且 email 沒有使用過
     const { email, password } = req.body;
     if (!email || !password) {
-      return next(new AppError('Lack of required data', 404));
+      return notFound(res, 'Lack of required data');
     }
 
     const user = await this.#userService.createUser(req.body);
